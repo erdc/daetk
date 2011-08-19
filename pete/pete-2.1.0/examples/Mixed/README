@@ -1,0 +1,9 @@
+/*******************************************************************
+ *                                                                 *
+ *                         Mixed example                           *
+ *                                                                 *
+ *******************************************************************/
+                            
+This example illustrates mixing STL vectors and lists in expressions.
+For another example of this combination, see Listing2.cpp and
+Listing4.cpp in examples/DDJ.

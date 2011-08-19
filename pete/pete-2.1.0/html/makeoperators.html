@@ -1,0 +1,450 @@
+<!-- introduction.html : introduction to PETE tutorials -->
+<!-- $Id: makeoperators.html,v 1.1 2001/08/10 15:24:14 ckees Exp $ -->
+
+<html>
+  <head>
+    <title>PETE Tutorials: MakeOperators man page</title>
+  </head>
+  <body bgcolor="#ffffff" link="#0099cc" alink="#0099cc" vlink="#cc6600">
+
+    <h1><center><img src="banner.gif" width="432" height="108" align="BOTTOM"
+	border="0" naturalsizeflag="3"></CENTER>
+  </h1>
+
+    <center>
+      <h1>MakeOperators</h1>
+    </center>
+
+    <h2>Name</h2>
+
+    <p>
+      <b>MakeOperators</b> - make the operator functions for a given set of classes
+      that return expression trees, so that PETE can be used with those classes.
+      Also can construct global assignment operators and operator tag structs.
+    </p>
+
+    <h2>Synopsis</h2>
+
+    <pre>
+MakeOperators [--help] [--pete-help] [--classes classfile]
+[--operators opfile [--pete-ops] ] [--guard INCLUDE_GUARD]
+[--scalars] [--extra-classes] [--no-expression] [--assign-ops]
+[--op-tags] [--no-shift-guard] [--o outputfile]
+    </pre>
+
+    <h2>Description</h2>
+
+    <p>
+      In order to use PETE with a given set of container classes,
+      operators such as <TT>+, -, *, /</TT> etc. must be defined to return expression
+      template parse trees when given those classes.
+      Operators must be defined for combining the container classes,
+      <TT>B + C</TT>, for combining the container classes with scalars,
+      <TT>2 * C</TT>, and for combining parse trees with other objects,
+      <TT>B + (C + D) + 2</TT>.
+      To generate the <a href="builtin.html">PETE built-in operators</a>
+      requires over 200 different templated operator functions to interface
+      PETE with a single container class such as the STL vector.
+     </p>
+
+    <p>
+      Command line options are:
+     </p>
+
+    <h3>--help<br>--pete-help</h3>
+    <blockquote>
+      <p>
+	Print a simple summary of the command options.
+      </p>
+    </blockquote>
+
+    <h3>--classes classfile</h3>
+    <blockquote>
+      <p>
+	Input the class definitions from the file "classfile".
+	Omitting this option causes no operator functions to be produced,
+	which can be useful if you only want to produce operator tags.
+      </p>
+      <p>
+	To understand the format of the input file, consider the STL vector.
+	<b>MakeOperators</b> will output definitions for <TT>operator+()</TT>
+	between vectors and vectors and between vectors and scalars:
+      </p>
+      <pre>
+template&lt;class T1,class Allocator1,class T2,class Allocator2&gt;
+(parse tree return type)
+operator+(const vector&lt;T1,Allocator1&gt; &v1,const vector&lt;T2,Allocator2&gt; &v2)
+{
+  (construct parse tree)
+}
+template&lt;class T1,class T2,class Allocator2&gt;
+(parse tree return type)
+operator+(const T1 &v1,const vector&lt;T2,Allocator2&gt; &v2)
+{
+  (construct parse tree)
+}
+template&lt;class T1,class Allocator1,class T2&gt;
+(parse tree return type)
+operator+(const vector&lt;T1,Allocator1&gt;& v1,const T2 &v2)
+{
+  (construct parse tree)
+}
+      </pre>
+      <p>
+	In order to construct the operator, the tool needs to know the
+	template arguments <TT>"class T,class Allocator"</TT> and the
+	templated form of the class <TT>"vector&lt;T,Allocator&gt;"</TT>.
+	For the STL vector example the class definitions file would contain
+	the four lines:
+      </p>
+      <pre>
+classes
+-----
+  ARG   = "class T[n],class Allocator[n]"
+  CLASS = "vector&lt;T[n],Allocator[n]&gt;"
+      </pre>
+      <p>
+	The string <TT>[n]</TT> needs to be attached to each template
+	argument and represents a number that allows
+	<b>MakeOperators</b> to uniquely
+	identify each argument in binary and trinary operators.
+	For classes with no template arguments, use <TT>ARG  = ""</TT>.
+	In general, the class definition definition file can look like:
+      </p>
+      <pre>
+classes
+-----
+  ARG   = (class 1 args)
+  CLASS = (class 1 definition)
+-----
+  ARG   = (class 2 args)
+  CLASS = (class 2 definition)
+...
+
+extraClasses
+-----
+  ARG   = (extra class 1 args)
+  CLASS = (extra class 1 definition)
+...
+scalars
+-----
+  ARG   = (scalar 1 args)
+  CLASS = (scalar 1 definition)
+...
+      </pre>
+      <p>
+	When multiple classes are listed, operators are produced for all
+	combinations of those classes with each other, with scalars and
+	with expression objects.
+      </p>
+      <p>
+	The second optional list starting with
+	the word <TT>extraClasses</TT> is used if you want to extend
+	a previously created file.  For example, if you produced a file
+	defining all the operators for <TT>vector&lt;T&gt;</TT> and
+	wanted to extend your implementation to operations between
+	vectors and <TT>list&lt;T&gt;</TT>, then you would list vector
+	as a class and list under extraClasses and specify the option
+	<TT>--extra-classes</TT>.  The resulting file would define
+	operations between lists and lists, and between lists and
+	vectors, but omit those between vectors and vectors, so that
+	you could include both the new file and your previously
+	generated file.
+	Typically, it would be better to simply create a new file
+	with all the operators, so extraClasses should rarely be
+	used.
+      </p>
+      <p>
+	The final part of this list that begins
+	with the word <TT>scalars</TT> will only rarely need to be used.
+	By the rules of partial specialization, if any class does not appear
+	in the classes list, it will be treated as a scalar.  Suppose you
+	were to define a tensor class <TT>Tensor&lt;T&gt;</TT>, then
+	<TT>Tensor&lt;T&gt;() + vector&lt;Tensor&lt;T&gt &gt;()</TT> would
+	invoke the right function: <TT>T1 + vector&lt;T2&gt;</TT> (which
+	means treat the tensor on the left as a scalar and add it to each
+	of the tensors in the vector of tensors).
+	A problem arises if you also define scalar operations with tensors
+	of the form <TT>Tensor&lt;T1&gt; + T2</TT> to represent adding a
+	scalar to each of the tensor components.
+	In this case
+	<TT>Tensor&lt;T&gt;() + vector&lt;Tensor&lt;T&gt &gt;()</TT>
+	is ambiguous as it matches the function for adding scalars to
+	vectors and the function for addint tensors to scalars.
+	To resolve this case, we must explicitly define
+	<TT>Tensor&lt;T&gt; + vector&lt;Tensor&lt;T&gt &gt;</TT>,
+	which will happen if we add <TT>Tensor&lt;T&gt;</TT> to the list
+	of scalars.  (So the list of scalars only needs to contain classes
+	that act like scalars but that also define operations between
+	themselves and classes of arbitrary type.)
+      </p>
+    </blockquote>
+
+    <h3>--o outputfile</h3>
+    <blockquote>
+      <p>
+	Send MakeOperators output to outputfile; otherwise write to stdout.
+      </p>
+    </blockquote>
+
+    <h3>--operators opfile</h3>
+    <blockquote>
+      <p>
+	Include the operator descriptions from the file "opfile".
+	Typically this option should be omitted, in which case
+	the set of 45 <a href="builtin.html">PETE built-in operators</a>
+	are used.  See the file
+	<a href="PeteOps.html"><TT>src/Tools/PeteOps.in</TT></a>
+	in the PETE distribution to see operator descriptors for all the
+	PETE built-in operators.
+	The general format of an operator descriptor file is:
+      </p>
+      <pre>
+type1
+-----
+  TAG      = "tag"
+  FUNCTION = "function"
+  EXPR     = "expression"
+-----
+  TAG      = "tag"
+  FUNCTION = "function"
+  EXPR     = "expression"
+...
+
+type2
+-----
+  TAG      = "tag"
+  FUNCTION = "function"
+  EXPR     = "expression"
+...
+      </pre>
+      <p>
+	The string <TT>"tag"</TT> is the name of a tag class that is used
+	in expression template nodes to differentiate between the different
+	operators.  For example, <TT>"OpAdd"</TT> is used for binary
+	<TT>operator+()</TT>,  <TT>"OpSubtract"</TT> is used for binary
+	<TT>operator-()</TT>, and so on.
+	The string <TT>"function"</TT> is the name of the operator funtion,
+	<TT>"operator+"</TT> for example.
+	The string <TT>"expression"</TT> contains the body of a function that
+	evaluates the operator on specific elements.  The string should
+	use the names a, b, and c to represent the arguments to the function.
+	For example the definition of binary <TT>operator+()</TT> sets
+	<TT>EXPR  = "return (a + b);"</TT>.
+      </p>
+      <p>
+	The headings <TT>type1</TT>, <TT>type2</TT>, etc. are operator types.
+	Currently the following operator types are supported:
+      </p>
+      <ul>
+	<li><b>unaryOps</b> - simple unary operators whose return
+	  type is the same as their input type
+	</li>
+	<li><b>unaryBoolOps</b> - unary operators that return a bool</li>
+	<li><b>unaryCastOps</b> - actually binary operators where the first
+	  argument is used to set the return type (like peteCast).
+	</li>
+	<li><b>unarySpecialOp</b> - unary operators that use the type computation
+	  system to compute their return type.
+	  For example <TT>real(Complex&lt;T&gt;)</TT> returns <TT>T</TT>.
+	</li>
+	<li><b>binaryOps</b> - simple binary operators that compute their
+	  return type by promotion.
+	</li>
+	<li><b>binaryBoolOps</b> - binary operators that return a bool
+	  (like <TT>&lt;</TT>).
+	</li>
+	<li><b>binaryLeftOps</b> - binary operators that return the type of
+	  the left argument.
+	</li>
+	<li><b>binarySpecialOps</b> - unary operators that use the type computation
+	  system to compute their return type.
+	</li>
+	<li><b>binaryAssignOps</b> - assignment operators like <TT>+=</TT>.
+	  If operator functions are produced for these operators then they call
+	  <TT>evaluate()</TT> instead of returning an expression tree.
+	</li>
+	<li><b>binaryAssignBoolOps</b> - assignment operators that always return
+	  a bool, like <TT>andAssign</TT> which emulates the mythical <TT>&&=</TT>.
+	</li>
+	<li><b>assignOp</b> - <TT>operator=()</TT>.
+	</li>
+	<li><b>trinaryOps</b> - trinary operators like <TT>where()</TT> which
+	  emulates <TT>?:</TT>.
+	</li>
+      </ul>
+    </blockquote>
+
+    <h3>--pete-ops</h3>
+    <blockquote>
+      <p>
+	Using the <TT>--operators</TT> causes the tool to use operator
+	descriptors from a file, but not to use any of the pre-defined
+	PETE operators.
+	If you wish produce operators for BOTH operators read from a
+	file AND the pre-defined PETE operators, the use
+	<TT>--pete-ops</TT> as well as the <TT>--operators</TT>
+	option.
+	For example, the first two commands in the POOMA example below
+	could be simplified to produce one file:
+      </p>
+      <pre>
+MakeOperators --classes PoomaClass.in \
+              --operators PoomaOps.in --pete-ops \
+              --guard POOMA_ARRAY_ARRAYOPERATORS_H \
+              --no-expression --o ArrayOperators.h
+      </pre>
+    </blockquote>
+
+    <h3>--guard INCLUDE_GUARD</h3>
+    <blockquote>
+      <p>
+	The code output by <b>MakeOperators</b> includes ifdefs to guard against
+	multiple inclusion of the form:
+      </p>
+      <pre>
+#ifndef INCLUDE_GUARD
+#define INCLUDE_GUARD
+ (code goes here)
+#endif // INCLUDE_GUARD
+      </pre>
+      <p>
+	If this option is omitted then <TT>INCLUDE_GUARD</TT> will
+	default to either <TT>GENERATED_OPERATORS_H</TT> if the
+	<TT>--classes</TT> option is present, or
+	<TT>OPERATOR_TAGS_H</TT> otherwise.
+	If you wish to omit the include guards from the output file,
+	then use the option <TT>--guard ""</TT>.
+      </p>
+    </blockquote>
+
+    <h3>--scalars</h3>
+    <blockquote>
+      <p>
+	When this option is present, only operations between classes and
+	scalars are produced.  This option is useful in the situation
+	mentioned in the description of <TT>--classes</TT>, where operators
+	must be defined between containers and user defined scalars in order
+	to resolve ambiguities.  In the example of a user defined tensor class,
+	the user would probably only define a small set of operations with general
+	scalars, like +, -, *, and /.  To produce smaller operator files,
+	you could produce all the operators without tensors and then produce the
+	operators between containers and tensors just for the smaller set of
+	operators.  See the example section for an example of this case.
+      </p>
+    </blockquote>
+
+    <h3>--extra-classes</h3>
+    <blockquote>
+      <p>
+	When this option is present, only operations involving extraClasses
+	are produced.  This option is useful if you want to create an
+	operator file that extends a previously created operator file.
+	See the <TT>--classes</TT> option for a description of
+	extraClasses.
+      </p>
+    </blockquote>
+
+    <h3>--no-expression</h3>
+    <blockquote>
+      <p>
+	<b>MakeOperators</b> needs to define operations between parse
+	tree objects and containers and scalars.
+	In the expression <TT>A + ( B + C )</TT>,
+	the subexpression <TT>( B + C )</TT> returns a parse tree object which
+	must then be combined with the container <TT>A</TT>.
+	Some users of PETE, like POOMA, wrap the result of operators inside
+	their own container class, so there is no need to define such operators.
+	(The sum of two POOMA arrays is an array containing an expression.)
+	This flag turns off generation of operations with parse tree objects.
+      </p>
+    </blockquote>
+
+    <h3>--assign-ops</h3>
+    <blockquote>
+      <p>
+	Generate global assignment operators that call the function
+	<TT>evaluate()</TT>.
+      </p>
+    </blockquote>
+
+    <h3>--op-tags</h3>
+    <blockquote>
+      <p>
+	Produce definitions of the operator tag classes.  PETE already contains
+	definitions of all the PETE built-in operators, so this flag only needs
+	to be used for user defined operators.
+      </p>
+    </blockquote>
+
+    <h3>--no-shift-guard</h3>
+    <blockquote>
+      <p>
+	It is typical to define the operator <TT>ostream &lt;&lt; container</TT>,
+	which can get confused with the operator <TT>T &lt;&lt; container</TT>
+	under some circumstances.
+	To avoid this problem, PETE only defines the shift operators between
+	scalars and containers if the macro PETE_ALLOW_SCALAR_SHIFT is defined.
+	If <TT>--no-shift-guard</TT> is selected, then the ifdefs that implement
+	this guard are eliminated and shift operators between scalars and
+	containers are always defined.
+      </p>
+    </blockquote>
+
+    <h2>Examples</h2>
+
+    <p>
+      Here we build operators to use STL vectors with PETE.
+      The flag <TT>--assign-ops</TT> is present because we
+      cannot define the assignment member functions for STL vectors.
+    </p>
+
+    <pre>MakeOperators --classes vectorDefs.in --assign-ops > VectorOperators.h</pre>
+
+    <p>
+      For POOMA, we create the built-in PETE operators, some special POOMA operators
+      like <TT>real()</TT>, and finally operators between POOMA arrays and the POOMA
+      Vector and Tensor scalars to disambiguate them.
+      The flag <TT>--no-expression</TT> is used because POOMA wraps expressions
+      inside POOMA arrays.
+      The flag <TT>--assign-ops</TT> not used because POOMA arrays define assignment
+      member functions.
+      In the second command, <TT>--op-tags</TT> is used because the POOMA operator
+      tag classes need to be defined.
+      In the third command, <TT>--scalars</TT> is used because the first command
+      has already defined operations between POOMA arrays for the operators in
+      <TT>PoomaVectorOps.in</TT> (which is a subset of the PETE operators).
+      In the fourth command, <TT>--o VectorOperators.h</TT> sends output to that
+      file rather than stdout.
+    </p>
+
+    <pre>
+MakeOperators --classes PoomaClass.in --guard POOMA_ARRAY_ARRAYOPERATORS_H \
+              --no-expression &gt; ArrayOperators.h
+
+MakeOperators --classes PoomaClass.in --operators PoomaOps.in \
+              --guard POOMA_POOMA_POOMAOPERATORS_H --no-expression \
+              --op-tags &gt; PoomaOperators.h
+
+MakeOperators --classes PoomaVectorClass.in --operators PoomaVectorOps.in \
+              --guard POOMA_POOMA_VECTOROPERATORS_H --no-expression --scalars \
+              &gt; VectorOperators.h
+
+MakeOperators --classes PoomaVectorClass.in --operators PoomaVectorOps.in \
+              --guard POOMA_POOMA_VECTOROPERATORS_H --no-expression --scalars \
+              --o VectorOperators.h
+    </pre>
+<br>
+<br>
+<center>
+<table>
+<tr>	<td><a href="index.html">[Home]</a>
+	</tr>
+</table>
+<em>
+<a href="http://www.acl.lanl.gov/pete/">Copyright &copy; Los Alamos National Laboratory 1999</a>
+</em>
+</center>
+
+</body>
+</html>

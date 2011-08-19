@@ -1,0 +1,97 @@
+<!-- stl.html : PETE appendix on the Standard Template Library -->
+<!-- $Id: stl.html,v 1.1 2001/08/10 15:24:14 ckees Exp $ -->
+
+<html>
+<head>
+<title>PETE Tutorials: The Standard Template Library</title>
+</head>
+<body bgcolor="#ffffff" link="#0099cc" alink="#0099cc" vlink="#cc6600">
+
+<h1><center><img src="banner.gif" width="432" height="108" align="BOTTOM"
+border="0" naturalsizeflag="3"></CENTER></h1>
+
+<center><h1>PETE Tutorials<br>The Standard Template Library</h1></center>
+
+<p>The best-known use of templates to date has been the Standard
+Template Library, or STL.  The STL uses templates to separate
+containers (such as vectors and lists) from algorithms (such as
+finding, merging, and sorting).  The two are connected through the use
+of <em>iterators</em>, which are classes that know how to read or
+write particular containers, without exposing the actual type of those
+containers.
+
+<p>For example, consider the following code fragment, which finds the
+first occurrence of a particular value in a vector of floating-point
+numbers:
+
+<blockquote><pre>
+void findValue(vector&lt;double&gt; &amp; values, double target)
+{
+    vector&lt;double&gt;::iterator loc =
+        find(values.begin(), values.end(), target);
+    assert(*loc == target);
+}
+</pre></blockquote>
+
+<p>The STL class <tt>vector&lt;&gt;</tt> declares another class called
+<tt>iterator</tt>, whose job it is to traverse a
+<tt>vector&lt;&gt;</tt>.  The two methods <tt>begin()</tt> and
+<tt>end()</tt> return instances of <tt>vector&lt;&gt;::iterator</tt>
+marking the beginning and end of the vector.  STL's <tt>find()</tt>
+function iterates from the first of its arguments to the second,
+looking for a value that matches the one specified.  Finally,
+dereferencing (<tt>operator*</tt>) is overloaded for
+<tt>vector&lt;&gt;::iterator</tt>, so that <tt>*loc</tt> returns the
+value at the location specified by <tt>loc</tt>.
+
+<p>If we decide later to store our values in a list instead of in a
+vector, only the declaration of the container type needs to change,
+since <tt>list&lt;&gt;</tt> defines a nested iterator class, and
+<tt>begin()</tt> and <tt>end()</tt> methods, in exactly the same way
+as <tt>vector&lt;&gt;</tt>:
+
+<blockquote><pre>
+void findValue(list&lt;double&gt; &amp; values, double target)
+{
+    list&lt;double&gt;::iterator loc =
+        find(values.begin(), values.end(), target);
+    assert(*loc == target);
+}
+</pre></blockquote>
+
+<p>If we go one step further, and use a <tt>typedef</tt> to label our
+container type, then nothing in <tt>findValue()</tt> needs to change
+at all:
+
+<blockquote><pre>
+typedef vector&lt;double&gt; Storage;
+// <em>typedef list&lt;double&gt; Storage;</em>
+
+void findValue(Storage &amp; values, double target)
+{
+    Storage::iterator loc =
+        find(values.begin(), values.end(), target);
+    assert(*loc == target);
+}
+</pre></blockquote>
+
+<p>The performance of this code will change as the storage mechanism
+changes, but that's the point: STL-based code can often be tuned using
+only minor, non-algorithmic changes.
+
+<br>
+<br>
+<center>
+<table>
+<tr>	<td><a href="tut-1.html">[Prev]</a>
+	<td><a href="index.html">[Home]</a>
+	<td><a href="legal.html">[Next]</a>
+	</tr>
+</table>
+<em>
+<a href="http://www.acl.lanl.gov/pete/">Copyright &copy; Los Alamos National Laboratory 1999</a>
+</em>
+</center>
+
+</body>
+</html>

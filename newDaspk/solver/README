@@ -1,0 +1,7 @@
+This is new code of DDASPK.f. The ADIFOR and MPI packages have been used in the 
+new code. If you cannot access these packages or do not want to use them, just
+link the code with the dummy routine:
+   adf_dymmy.f    and    mpi_dummy.f
+when you compile the DASPK code.
+
+DSENSD.f is used for sensitivity analysis for the derived information.

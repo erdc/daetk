@@ -1,0 +1,7 @@
+AD_PROG = raha.cmp
+AD_TOP = res
+AD_IVARS = y, yprime
+AD_OVARS = delta
+AD_PREFIX = i
+AD_FLAVOR = sparse
+AD_OUTPUT_DIR = jacsp

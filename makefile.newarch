@@ -1,0 +1,112 @@
+DAETK		= $(PWD)
+include config.def
+include sources.h
+include $(DAETK)/config/$(DAETK_ARCH).sources
+
+LIBNAME		= libdaetk
+LIBDIR		= $(DAETK)/lib/lib$(BOPT)/
+INCLUDES	= $(GLOBALINCLUDES)  
+LDFLAGS		= $(CXXFLAGS) $(GLOBALLDFLAGS) -lmpi  -lmpif77
+SYSLIBS		= $(GLOBALSYSLIBS)
+ARCHIVE		= $(LIBNAME).a
+
+DEFS2		=
+LDFLAGS2	= 
+SYSLIBS2	=
+ARCHIVE2	= $(LIBNAME)2.a
+
+DEFS3		= 
+LDFLAGS3	= 
+SYSLIBS3	=
+ARCHIVE3	= $(LIBNAME)3.a
+
+#################
+# Target Rules
+#################
+
+
+all: debug
+
+debug:
+	$(MAKE) CXXFLAGS='$(DEBUGCXXFLAGS) $(GLOBALCXXFLAGS)' \
+	CFLAGS='$(DEBUGCFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(DEBUGFFLAGS) $(GLOBALFFLAGS)' \
+	$(ARCHIVE) 
+
+profile:
+	$(MAKE) CXXFLAGS='$(OPT2CXXFLAGS) $(PROFILECXXFLAGS) $(GLOBALCXXFLAGS)' \
+	FFLAGS='$(OPT2FFLAGS) $(PROFILECFLAGS) $(GLOBALFFLAGS)' \
+	CFLAGS='$(OPT2CFLAGS) $(PROFILEFFLAGS) $(GLOBALCFLAGS)' \
+	$(ARCHIVE) 
+
+opt:
+	$(MAKE) CXXFLAGS='$(OPT2CXXFLAGS) $(GLOBALCXXFLAGS)' \
+	FFLAGS='$(OPT2FFLAGS) $(GLOBALFFLAGS)' \
+	CFLAGS='$(OPT2CFLAGS) $(GLOBALCFLAGS)' \
+	$(ARCHIVE) 
+ 
+debug2:
+	$(MAKE) CXXFLAGS='$(DEBUGCXX2FLAGS) $(GLOBALCXX2FLAGS) $(LIBONLYFLAGS)' \
+	CFLAGS='$(DEBUGCFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(DEBUGFFLAGS) $(GLOBALFFLAGS)' \
+	CXX=$(CXX2) DEFS=$(DEFS2) $(ARCHIVE2) 
+
+debug3:
+	$(MAKE) CXXFLAGS='$(DEBUGCXX3FLAGS) $(GLOBALCXX3FLAGS)' \
+	CFLAGS='$(DEBUGCFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(DEBUGFFLAGS) $(GLOBALFFLAGS)' \
+	CXX=$(CXX3) DEFS=$(DEFS3) $(ARCHIVE3) 
+
+opt2:
+	$(MAKE) CXXFLAGS='$(OPT2CXX2FLAGS) $(GLOBALCXX2FLAGS) $(LIBONLYFLAGS)' \
+	CFLAGS='$(OPT2CFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(OPT2FFLAGS) $(GLOBALFFLAGS)' \
+	CXX=$(CXX2) DEFS=$(DEFS2) $(ARCHIVE2) 
+
+opt3:
+	$(MAKE) CXXFLAGS='$(OPT2CXX3FLAGS) $(GLOBALCXX3FLAGS)' \
+	CFLAGS='$(OPT2CFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(OPT2FFLAGS) $(GLOBALFFLAGS)' CXX=$(CXX3) \
+	DEFS=$(DEFS3) $(ARCHIVE3) 
+
+
+$(ARCHIVE3): $(OBJS) $(OBJS_ADD)
+	$(AR) $(ARFLAGS) $(ARCHIVE3) $(OBJS) 
+	$(RANLIB) $(ARCHIVE3)
+
+include config/$(DAETK_ARCH).archive
+
+clean:
+	$(RM) $(OBJS) $(FILESTOCLEAN)
+	$(RM) -rf ti_files
+
+export_src:
+	cp makefile makefile.sample 
+	tar czvf daetk.tar.gz makefile.sample *.h *.C  *.f pete		
+	cp daetk.tar.gz export
+
+clobber: clean
+	$(RM) $(ARCHIVE)
+
+depend:
+	touch dep.txt
+	$(MAKEDEPEND) $(MAKEDEPENDFLAGS) -- $(DEFS) $(INCLUDES) -- $(SRCS) -f dep.txt 
+
+.SUFFIXES: .c .cc .cpp .C .o .f
+
+.cc.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+.C.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+.f.o:
+	$(F) $(FFLAGS) -c $<
+
+include dep.txt

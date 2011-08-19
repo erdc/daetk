@@ -1,0 +1,80 @@
+<!-- introduction.html : introduction to PETE tutorials -->
+<!-- $Id: introduction.html,v 1.1 2001/08/10 15:24:14 ckees Exp $ -->
+
+<html>
+<head>
+<title>PETE Tutorials: Introduction</title>
+</head>
+<body bgcolor="#ffffff" link="#0099cc" alink="#0099cc" vlink="#cc6600">
+
+<h1><center><img src="banner.gif" width="432" height="108" align="BOTTOM"
+border="0" naturalsizeflag="3"></CENTER></h1>
+
+<center><h1>PETE Tutorials<br>Introduction</h1></center>
+
+<p>This document is an introduction to PETE, a library of C++ classes
+and templates for high-performance numerical computation.  PETE, which
+stands for "Portable Expression Template Engine", uses a technique
+called <em>expression templates</em> to eliminate data copying and the
+creation of temporary variables.  As a result, PETE-based programs can
+be as efficient as their C or Fortran equivalents.
+
+<p>PETE was designed and implemented by scientists working at the Los
+Alamos National Laboratory's Advanced Computing Laboratory.  These
+scientists have written and tuned large applications on almost every
+kind of microprocessor built in the last two decades.  PETE therefore
+encapsulates its authors' understanding of how to get good performance
+out of modern pipelined architectures and their multi-level memory
+hierarchies.
+
+<p>PETE is free for non-commercial use (i.e. your tax dollars have
+already paid for it).  You can read its source, extend it to handle
+platforms or problem domains that the core distribution doesn't cater
+for, or integrate it with other libraries and your current
+application, at no cost.  For more information, please see the <a
+href="legal.html">license</a> information included in the appendix.
+
+<p>Of course, nothing is perfect.  As of October 1998, some C++
+compilers still do not support the full ANSI/ISO C++ standard.  Please
+see PETE's <a href="http://www.acl.lanl.gov/pete">support page</a> for
+a list of those that do.
+
+<p>A second compiler-related problem is that most compilers produce
+very long, and very cryptic, error messages if they encounter an error
+while expanding templated functions and classes, particularly if those
+functions and classes are nested.  Since PETE uses templates
+extensively, it is not uncommon for a single error to result in
+several pages of complaints from a compiler.  Programs that use
+templates extensively are also still sometimes slower to compile than
+programs that do not, and the executables produced by some compilers
+can be surprisingly large.
+
+<p>The body of this tutorial starts with <a href="background.html">a
+discussion</a> of the two key concepts behind PETE: C++ templates, and
+parse trees.  The tutorials that follow show how to apply PETE to
+user-defined classes, and to third-party classes such as those in the
+C++ Standard Template Library (STL). You may also wish to look at the
+<a href="http://www.acl.lanl.gov/pete">PETE</a> web site for updates,
+bug fixes, and general discussion.
+As well, an introductory article on PETE appeared in the October 1999
+issue of Dr. Dobb's Journal.
+If you have any questions about
+PETE or its terms of use, or if you need help downloading or
+installing PETE, please mail us at <a
+href="mailto:pete-devel@lanl.gov"><tt>pete-devel@lanl.gov</tt></a>.
+
+<br>
+<br>
+<center>
+<table>
+<tr>	<td><a href="index.html">[Home]</a>
+	<td><a href="background.html">[Next]</a>
+	</tr>
+</table>
+<em>
+<a href="http://www.acl.lanl.gov/pete/">Copyright &copy; Los Alamos National Laboratory 1999</a>
+</em>
+</center>
+
+</body>
+</html>

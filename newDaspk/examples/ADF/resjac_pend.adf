@@ -1,0 +1,8 @@
+AD_PROG = pend.cmp
+AD_TOP = res
+AD_IVARS = y, yprime
+AD_OVARS = delta
+AD_PMAX = 5
+AD_PREFIX = j
+AD_FLAVOR = dense
+AD_OUTPUT_DIR = jac

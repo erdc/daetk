@@ -1,0 +1,779 @@
+<!-- background.html : preparatory material for PETE tutorials -->
+<!-- $Id: background.html,v 1.1 2001/08/10 15:24:14 ckees Exp $ -->
+
+<html>
+<head>
+<title>PETE Tutorials: Background and Terminology</title>
+</head>
+<body bgcolor="#ffffff" link="#0099cc" alink="#0099cc" vlink="#cc6600">
+
+<h1><center><img src="banner.gif" width="432" height="108" align="BOTTOM"
+border="0" naturalsizeflag="3"></CENTER></h1>
+
+<center><h1>PETE Tutorials<br>Background and Terminology</h1></center>
+
+<p><b>Contents:</b>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#intro">Introduction</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#templates">Templates</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#parsetrees">Representing Parse Trees</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#lookahead">Looking Ahead</a>
+
+<a name="intro"><h2>Introduction</h2></a>
+
+<p>Object-oriented languages like C++ make development easier, but
+performance tuning harder.  The same abstractions that allow
+programmers to express their ideas compactly also make it hard for
+compilers to re-order operations, predict how many times a loop will
+be executed, or re-use memory instead of copying values.
+
+<p>For example, suppose that a program uses a <tt>Vector</tt>
+class to represent vectors of floating-point values:
+
+<blockquote><pre>
+class Vector
+{
+  public :
+    Vector();                           // <em>default constructor</em>
+
+    Vector(                             // <em>value constructor</em>
+        int size,                       // <em>..size of vector</em>
+        float val                       // <em>..initial element value</em>
+    );
+
+    Vector(                             // <em>copy constructor</em>
+        const Vector &amp; v                // <em>..what to copy</em>
+    );
+
+    virtual ~Vector();                  // <em>clean up</em>
+
+    float getAt(                        // <em>get an element</em>
+        int index                       // <em>..which element to get</em>
+    ) const;
+
+    void setAt(                         // <em>change an element</em>
+        int index,                      // <em>..which element to set</em>
+        float val                       // <em>..new value for element</em>
+    );
+
+    Vector operator+(                   // <em>add, creating a new vector</em>
+        const Vector &amp; right            // <em>..thing being added</em>
+    );
+
+    Vector operator*(                   // <em>multiply (create result)</em>
+        const Vector &amp; right            // <em>..thing being multiplied</em>
+    );
+
+    Vector &amp; operator=(                 // <em>assign, returning target</em>
+        const Vector &amp; right            // <em>..source</em>
+    );
+
+  protected :
+    int len_;                           // <em>current length</em>
+    float * val_;                       // <em>current values</em>
+};
+</pre></blockquote>
+
+<p>Consider what happens when the following statement is executed:
+
+<blockquote><pre>
+Vector x, a, b, c;
+// <em>variable initialization omitted</em>
+x = a + b * c;
+</pre></blockquote>
+
+<p><tt>b*c</tt> creates a new <tt>Vector</tt>, and fills it with
+the elementwise product of <tt>b</tt> and <tt>c</tt> by looping over
+the values that those two vectors encapsulate.  The call to the
+addition operator creates another temporary, and executes another loop
+to fill it.  Finally, the call to the assignment operator doesn't
+create a third temporary, but it does execute a third loop.  Thus,
+this simple statement is equivalent to:
+
+<blockquote><a name="inefficient-loops"><pre>
+Vector x, a, b, c;
+
+// <em>...initialization...</em>
+
+Vector temp_1;
+for (int i=0; i&lt;<em>vectorLength</em>; ++i)
+{
+    temp_1.setAt(i, b.getAt(i) * c.getAt(i));
+}
+
+Vector temp_2;
+for (int i=0; i&lt;<em>vectorLength</em>; ++i)
+{
+    temp_2.setAt(i, a.getAt(i) + temp_1.getAt(i));
+}
+
+for (int i=0; i&lt;<em>vectorLength</em>; ++i)
+{
+    x.setAt(i, temp_2.getAt(i));
+}
+</pre></blockquote>
+
+<p>Clearly, if this program was written in C instead of C++, the three
+loops would have been combined, and the two temporary vectors
+eliminated:
+
+<blockquote><pre>
+Vector x, a, b, c;
+// <em>...initialization...</em>
+for (int i=0; i&lt;<em>vectorLength</em>; ++i)
+{
+    x.setAt(i, a.getAt(i) + b.getAt(i) * c.getAt(i));
+}
+</pre></blockquote>
+
+<p>The optimizations required to turn the three-loop version of this
+code into its single-loop equivalent are beyond the capabilities of
+existing commercial compilers.  Because operations may involve
+aliasing---i.e., because an expression like <tt>x=a+b*c</tt> can
+assign to a vector while also reading from it---optimizers must err on
+the side of caution, and neither eliminate temporaries nor fuse loops.
+This has led many programmers to believe that C++ is intrinsically
+less efficient than C or Fortran&nbsp;77.
+
+<p>Luckily, this conclusion is wrong.  By using templates in a
+highly-structured way, PETE exposes opportunities for optimization to
+compilers without sacrificing readability or portability.  The result
+is that modern C++ compilers can deliver the same performance for
+PETE-based programs as C or Fortran compilers do for equivalent
+programs written in those lower-level languages.
+
+<p>In order to understand how and why PETE does what it does, it is
+necessary to understand what C++ <a href="#templates">templates</a>
+are, and how PETE (and similar libraries) use templates to encode <a
+href="#parsetrees">parse trees</a>.
+
+<a name="templates"><h2>Templates</h2></a>
+
+<p>Templates were a late addition to C++, but they have increased the
+power of the language significantly.  One way to look at templates is
+as an improvement over macros.  Suppose that you wanted to create a
+set of classes to store pairs of <tt>int</tt>s, pairs of
+<tt>float</tt>s, and so on.  Without templates, you might define a
+macro:
+
+<blockquote><pre>
+#define DECLARE_PAIR_CLASS(name_, type_)                            \
+class name_                                                         \
+{                                                                   \
+  public :                                                          \
+    name_();                            // <em>default constructor      \</em>
+    name_(type_ left, type_ right);     // <em>value constructor        \</em>
+    name_(const name_ &amp; right);         // <em>copy constructor         \</em>
+    virtual ~name_();                   // <em>destructor               \</em>
+    type_ &amp; left();                     // <em>access left element      \</em>
+    type_ &amp; right();                    // <em>access right element     \</em>
+                                                                    \
+  protected :                                                       \
+    type_ left_, right_;                // <em>value storage            \</em>
+};
+</pre></blockquote>
+
+<p>then use it to create each class in turn:
+
+<blockquote><pre>
+DECLARE_PAIR_CLASS(IntPair, int)
+DECLARE_PAIR_CLASS(FloatPair, float)
+</pre></blockquote>
+
+<p>A better way to do this is to declare a template class:
+
+<blockquote><pre>
+template&lt;class DataType&gt;
+class Pair
+{
+  public :
+    Pair();                             // <em>default constructor</em>
+    Pair(DataType left,                 // <em>value constructor</em>
+         DataType right);
+    Pair(const Pair&lt;DataType&gt; &amp; right);           // <em>copy constructor</em>
+    virtual ~Pair();                    // <em>destructor</em>
+    DataType &amp; left();                  // <em>access left element</em>
+    DataType &amp; right();                 // <em>access right element</em>
+
+  protected :
+    DataType left_, right_;             // <em>value storage</em>
+};
+</pre></blockquote>
+
+<p>The keyword <tt>template</tt> tells the compiler that the class
+cannot be compiled right away, since it depends on an as-yet-unknown
+data type.  When the declarations:
+
+<blockquote><pre>
+Pair&lt;int&gt;   pairOfInts;
+Pair&lt;float&gt; pairOfFloats;
+</pre></blockquote>
+
+<p>are seen, the compiler instantiates <tt>Pair&lt;&gt;</tt> once for
+each underlying data type.  This happens automatically: the programmer
+does <em>not</em> have to create the actual pair classes explicitly by
+saying:
+
+<blockquote><pre>
+typedef Pair&lt;int&gt; IntPair;              // <em>incorrect!</em>
+IntPair pairOfInts;
+</pre></blockquote>
+
+<p>Templates can also be used to define generic functions, as in:
+
+<blockquote><pre>
+template&lt;class DataType&gt;
+void swap(DataType &amp; left, DataType &amp; right)
+{
+    DataType tmp(left);
+    left  = right;
+    right = tmp;
+}
+</pre></blockquote>
+
+<p>Once again, this function can be called with two objects of any
+matching type, without any further work on the programmer's part:
+
+<blockquote><pre>
+int   i, j;
+swap(i, j);
+
+Shape back, front;
+swap(back, front);
+</pre></blockquote>
+
+<p>Note that the implementation of <tt>swap()</tt> depends on the
+actual data type of its arguments having both a copy constructor (so
+that <tt>tmp</tt> can be initialized with the value of <tt>left</tt>)
+and an assignment operator (so that <tt>left</tt> and <tt>right</tt>
+can be overwritten).  If the actual data type does not provide either
+of these, the compiler will report an error.
+
+<p>Note also that <tt>swap()</tt> can be made more flexible by not
+requiring the two objects to have exactly the same type.  The
+following re-definition of <tt>swap()</tt> will exchange the values of
+any two objects, provided appropriate assignment and conversion
+operators exist:
+
+<blockquote><pre>
+template&lt;class LeftType, class RightType&gt;
+void swap(LeftType &amp; left, RightType &amp; right)
+{
+    LeftType tmp(left);
+    left  = right;
+    right = tmp;
+}
+</pre></blockquote>
+
+<p>Finally, the word <tt>class</tt> appears in template definitions
+because other values, such as integers, can also be used.  The code
+below defines a small fixed-size vector class, but does not fix either
+its size or underlying data type:
+
+<blockquote><pre>
+template&lt;class DataType, int FixedSize&gt;
+class FixedVector
+{
+  public :
+    FixedVector();                      // <em>default constructor</em>
+    FixedVector(DataType filler);       // <em>value constructor</em>
+    virtual ~FixedVector();             // <em>destructor</em>
+
+    FixedVector(                        // <em>copy constructor</em>
+        FixedVector&lt;DataType, FixedSize&gt; right
+    );
+
+    FixedVector&lt;DataType&gt;               // <em>assignment</em>
+    operator=(
+        const FixedVector&lt;DataType, FixedSize&gt; &amp; right
+    );
+
+    DataType &amp; operator[](int index);   // <em>element access</em>
+
+  protected :
+    DataType storage[FixedSize];        // <em>fixed-size storage</em>
+};
+</pre></blockquote>
+
+<p>It is at this point that the possible <a
+name="performance-advantages">performance advantages</a> of templated
+classes start to become apparent.  Suppose that the copy constructor
+for this class is implemented as follows:
+
+<blockquote><pre>
+template&lt;class DataType, int FixedSize&gt;
+FixedVector::FixedVector(
+    FixedVector&lt;DataType, FixedSize&gt; right
+){
+    for (int i=0; i&lt;FixedSize; ++i)
+    {
+        storage[i] = right.storage[i];
+    }
+}
+</pre></blockquote>
+
+<p>When the compiler sees a use of the copy constructor, such as:
+
+<blockquote><pre>
+FixedVector&lt;DataType, FixedSize&gt; first;
+// <em>initialization of first vector omitted</em>
+FixedVector&lt;DataType, FixedSize&gt; second(first);
+</pre></blockquote>
+
+<p>it knows the size as well as the underlying data type of the
+objects being manipulated, and can therefore do more optimization than
+it could if the size was variable.
+
+<p>Automatic instantiation of templates is convenient and powerful,
+but does have one drawback.  Suppose the <tt>Pair&lt;&gt;</tt> class
+shown earlier is instantiated in one source file to create a pair of
+<tt>int</tt>s, and in another source file to create a pair of
+<tt>Shape</tt>s.  The compiler and linker could:
+
+<ol>
+
+<li>treat the two instantiations as completely separate classes;
+
+<li>detect and eliminate redundant instantiations; or
+
+<li>avoid redundancy by not instantiating templates until the program as
+a whole was being linked.
+
+</ol>
+
+<p>The first of these can lead to very large programs, as a
+commonly-used template class may be expanded dozens of times.  The
+second is difficult to do, as it involves patching up compiled files
+as they are being linked.  Most recent versions of C++ compilers are
+therefore taking the third approach, but POOMA&nbsp;II users should be
+aware that older versions might still produce much larger executables
+than one would expect.
+
+<p>The last use of templates that is important to this discussion is
+template methods.  Just as templated functions are instantiated for
+different types of arguments, so too are templated methods
+instantiated for a class when and as they are used.  Suppose a class
+called <tt>Example</tt> is defined as follows:
+
+<blockquote><pre>
+class Example
+{
+  public :
+    Example();                          // <em>default constructor</em>
+    virtual ~Example();                 // <em>destructor</em>
+
+    template&lt;class T&gt;
+    void foo(T object)
+    {
+        // <em>some operation on object</em>
+    }
+};
+</pre></blockquote>
+
+<p>Whenever the method <tt>Example::foo()</tt> is called with an
+object of a particular type, the compiler instantiates it for that
+type.  Thus, both of the following calls are legal:
+
+<blockquote><pre>
+Example e;
+Shape box;
+e.foo(5);                               // <em>instantiate for int</em>
+e.foo(box);                             // <em>instantiate for Shape</em>
+</pre></blockquote>
+
+<a name="parsetrees"><h2>Representing Parse Trees</h2></a>
+
+<p>Parse trees are commonly used by compilers to store the essential
+features of the source of a program.  The leaf nodes of a parse tree
+consist of atomic symbols in the language, such as variable names or
+numerical constants.  The parse tree's intermediate nodes represent
+ways of combining those values, such as arithmetic operators and
+<tt>while</tt> loops.  For example, the expression <tt>-B + 2 * C</tt>
+could be represented by the parse tree shown in <a
+href="#fig-simple-parse-tree">Figure&nbsp;1</a>
+
+<center><table>
+<tr><td align=center><img src="tree.gif"></td></tr>
+<tr><td align=center>Figure 1: A Simple Parse Tree</td></tr>
+</table></center>
+
+<p>Parse trees are often represented textually using prefix notation,
+in which the non-terminal combiner and its arguments are strung
+together in a parenthesized list.  For example, the expression
+<tt>-B + 2 * C</tt> can be represented as
+<tt>(+&nbsp;(-&nbsp;B)&nbsp;(*&nbsp;2&nbsp;C))</tt>.
+
+<p>What makes all of this relevant to high-performance computing is
+that the expression <tt>(+&nbsp;(-&nbsp;B)&nbsp;(*&nbsp;2&nbsp;C))</tt> could
+equally easily be written
+<tt>BinaryOp&lt;Add,&nbsp;UnaryOp&lt;Minus,&nbsp;B&gt;,&nbsp;BinaryOp&lt;Multiply,&nbsp;Scalar&lt;2&gt;,&nbsp;C&gt;&gt;</tt>:
+it's just a different notation.  However, this notation is very
+similar to the syntax of C++ templates --- so similar, in fact, that
+it can actually be implemented given a careful enough set of template
+definitions.  As discussed <a
+href="#performance-advantages">earlier</a>, by providing more
+information to the optimizer as programs are being compiled, template
+libraries can increase the scope for performance optimization.
+
+<p>Any facility for representing expressions as trees must provide:
+
+<ul>
+
+<li>a representation for leaf nodes (operands);
+
+<li>a way to represent operations to be performed at the leaves
+(i.e. functions on individual operands);
+
+<li>a representation for non-leaf nodes (operators);
+
+<li>a way to represent operations to be performed at non-leaf nodes
+(i.e. combiners);
+
+<li>a way to pass information (such as the function to be performed at
+the leaves) downward in the tree; and
+
+<li>a way to collect and combine information moving up the tree.
+
+</ul>
+
+<p>C++ templates were not designed with these requirements in mind,
+but it turns out that they can satisfy them.  The central idea is to
+use the compiler's representation of type information in an
+instantiated template to store operands and operators.  For example,
+suppose that a set of classes have been defined to represent the basic
+arithmetic operations:
+
+<blockquote><pre>
+struct AddOp
+{
+    static inline double apply(const double &amp; left, const double &amp; y)
+    {
+        return x + y;
+    }
+};
+
+struct MulOp
+{
+    static inline double apply(const double &amp; left, const double &amp; y)
+    {
+        return x * y;
+    }
+};
+
+// <em>...and so on...</em>
+</pre></blockquote>
+
+<p>Note the use of the keyword <tt>struct</tt>; this simply signals
+that everything else in these classes---in particular, their
+default constructors and their destructors---are <tt>public</tt>.
+
+<p>Now suppose that a templated class <tt>BinaryOp&lt;&gt;</tt> has
+been defined as follows:
+
+<blockquote><pre>
+template&lt;class Operator, class RHS&gt;
+class BinaryOp
+{
+  public :
+    // <em>empty constructor will be optimized away, but triggers</em>
+    // <em>type identification needed for template expansion</em>
+    BinaryOp(
+        Operator op,
+        const Vector &amp; leftArg,
+        const RHS    &amp; rightArg
+    ) : left_(leftArg),
+        right_(rightArg)
+    {}
+
+    // <em>empty destructor will be optimized away</em>
+    ~BinaryOp()
+    {}
+
+    // <em>calculate value of expression at specified index by recursing</em>
+    inline double apply(int i)
+    {
+        return Operator::apply(leftArg.apply(i), rightArg.apply(i));
+    }
+
+  protected :
+    const Vector &amp; left_;
+    const RHS    &amp; right_;
+};
+</pre></blockquote>
+
+<p>If <tt>b</tt> and <tt>c</tt> have been defined as <tt>Vector</tt>,
+and if <tt>Vector::apply()</tt> returns the vector element at the
+specified index, then when the compiler sees the following expression:
+
+<blockquote><pre>
+BinaryOp&lt;MulOp, Vector, Vector&gt;(MulOp(), b, c).apply(3)
+</pre></blockquote>
+
+<p>it translates the expression into
+<tt>b.apply(3)&nbsp;*&nbsp;c.apply(3)</tt>.  The creation of the
+intermediate instance of <tt>BinaryOp&lt;&gt;</tt> is optimized away
+completely, since all that object does is record a couple of
+references to arguments.
+
+<p>Why to go all this trouble?  The answer is rather long, and
+requires a few seemingly-pointless steps.  Consider what happens when
+the complicated expression above is nested inside an even more
+complicated expression, which adds an element of another vector
+<tt>a</tt> to the original expression's result:
+
+<blockquote><pre>
+BinaryOp&lt; AddOp,
+          Vector,
+          BinaryOp&lt; MulOp, Vector, Vector &gt;
+        &gt;(a, BinaryOp&lt; MulOp, Vector, Vector &gt;(b, c)).apply(3);
+</pre></blockquote>
+
+<p>This expression calculates
+<tt>a.apply(3)&nbsp;+&nbsp;(b.apply(3)&nbsp;*c.apply(3))</tt>.  If the
+expression was wrapped in a <tt>for</tt> loop, and the loop's index
+was used in place of the constant <tt>3</tt>, the expression would
+calculate an entire vector's worth of new values:
+
+<blockquote><pre>
+BinaryOp&lt; AddOp,
+          Vector,
+          BinaryOp&lt; MulOp, Vector, Vector &gt; &gt;
+        expr(a, BinaryOp&lt; MulOp, Vector, Vector &gt;(b, c));
+for (int i=0; i<<em>vectorLength</em>; ++i)
+{
+  double tmp = expr.apply(i);
+}
+</pre></blockquote>
+
+<p>The possible nesting of <tt>BinaryOp&lt;&gt;</tt> inside itself is
+the reason that the <tt>BinaryOp&lt;&gt;</tt> template has two type
+parameters.  The first argument to a <tt>BinaryOp&lt;&gt;</tt> is
+always a <tt>Vector</tt>, but the second may be either a
+<tt>Vector</tt> or an expression involving <tt>Vector</tt>s.
+
+<p>The code above is not something any reasonable person would want to
+write.  However, having a compiler create this loop and its contained
+expression automatically is entirely plausible.  The first step is to
+overload addition and multiplication for vectors, so that
+<tt>operator+(Vector,Vector)</tt> (and
+<tt>operator*(Vector,Vector)</tt>) instantiates
+<tt>BinaryOp&lt;&gt;</tt> with <tt>AddOp</tt> (and <tt>MulOp</tt>) as
+its first type argument, and invokes the <tt>apply()</tt> method of
+the instantiated object.  The second step is to overload the
+assignment operator <tt>operator=(Vector,Vector)</tt> so that it
+generates the loop shown above:
+
+<blockquote><pre>
+template&lt;class Op, T&gt;
+Vector &amp operator=(
+    Vector &amp; target,
+    BinaryOp&lt;Op&gt; &amp; expr
+){
+    for (int i=0; i&lt;<em>vectorLength</em>; ++i)
+    {
+        target.set(i, expr.apply(i));
+    }
+    return target;
+}
+</pre></blockquote>
+
+<p>With these operator definitions in play, the simple expression:
+
+<blockquote><pre>
+Vector x, a, b, c;
+// <em>...initialization...</em>
+x = a + b * c;
+</pre></blockquote>
+
+<p>is automatically translated into the efficient loop shown above,
+rather than into the <a href="#inefficient-loops">inefficient
+loops</a> shown earlier.  The expression on the right hand side is
+turned into an instance of a templated class whose type encodes the
+operations to be performed, while the implementation of the assignment
+operator causes that expression to be evaluated exactly once for each
+legal index.  No temporaries are created, and only a single loop is
+executed.
+
+<a name="lookahead"><h2>Looking Ahead</h2></a>
+
+<p>Of course, an industrial-strength implementation of these ideas
+requires definitions that are considerably more complicated than the
+ones shown in the previous section.  For a start,
+<tt>BinaryOp&lt;&gt;</tt> and its kin are not defined directly on any
+one class <tt>Vector</tt>.  It isn't even defined for
+<tt>Vector&lt;T&gt;</tt>, but rather for a wrapper class
+<em>UNDONE</em>.  This class expects nothing from its contained class
+except an <tt>apply</tt> method capable of turning an index into a
+value.  This allows users to integrate their own classes with PETE
+simply by providing the required method.  Similarly, the classes that
+PETE defines to represent unary and binary operators are considerably
+more flexible than the ones shown above.
+
+<p>One of the idioms used by PETE that hasn't been shown above is the
+<em>tag class</em>.  A tag class has no methods, and contains no data;
+its only reason for existing is as a flag to the C++ compiler during
+template expansion.  A mutually exclusive set of tag classes is
+therefore the compile-time equivalent of an enumeration.  PETE uses
+tag classes to identify operators, the way in which operands are
+referenced (i.e. directly or through iterators and other
+intermediators), and so on.
+
+<p>Another idiom used in PETE is the traits class, which depends on a
+feature of ANSI C++ called partial specialization.  When a C++
+compiler instantiates a template, it tries to choose the best possible
+match for the arguments it is given.  For example, suppose that both
+of the following definitions are in scope when the objects
+<tt>fred</tt> and <tt>jane</tt> are created:
+
+<blockquote><pre>
+template&lt;class T&gt;
+class Example
+{
+    enum { tag = 123; }
+};
+
+template&lt;&gt;
+class Example&lt;int&gt;
+{
+    enum { tag = 456; }
+};
+
+Example&lt;int&gt;   fred;
+Example&lt;float&gt; jane;
+</pre></blockquote>
+
+<p>As you would expect, <tt>fred</tt>'s <tt>tag</tt> has the value
+456, while <tt>jane</tt>'s has the generic value 123: the compiler
+chooses the most specific type possible.
+
+<p>This facility can be used to create lookup tables.  For example,
+suppose we want to encode the types of the results of arithmetic
+operations involving an arbitrary mix of <tt>int</tt> and
+<tt>double</tt> arguments.  The following definitions do the trick:
+
+<blockquote><pre>
+// <em>generic case</em>
+template&lt;class Left, class Right&gt;
+class TypeEncoding
+{
+    // <em>empty: no generic result possible</em>
+};
+
+// <em>int op int => int</em>
+template&lt;&gt;
+class TypeEncoding&lt;int, int&gt;
+{
+    typedef int Result_t;
+};
+
+// <em>int op double => double</em>
+template&lt;&gt;
+class TypeEncoding&lt;int, double&gt;
+{
+    typedef double Result_t;
+};
+
+// <em>double op int => double</em>
+template&lt;&gt;
+class TypeEncoding&lt;double, int&gt;
+{
+    typedef double Result_t;
+};
+
+// <em>double op double => double</em>
+template&lt;&gt;
+class TypeEncoding&lt;double, double&gt;
+{
+    typedef double Result_t;
+};
+</pre></blockquote>
+
+<p>We can now overcome one of the biggest shortcomings of C++
+templates, and automatically generate the correct result type of a
+templated expression:
+
+<blockquote><pre>
+template&lt;class Left, class Right&gt;
+TypeEncoding&lt;Left, Right&gt;::Result_t
+add(const Left &amp; left, const Right &amp; right)
+{
+    return left + right;
+}
+</pre></blockquote>
+
+<p>If <tt>add()</tt> is called with two <tt>int</tt> arguments, the
+compiler will know that that particular instantiation is going to
+return an <tt>int</tt>.  If it is called with one or two
+<tt>double</tt> arguments, the compiler will know it is going to
+return a <tt>double</tt>.  By specializing
+<tt>TypeEncoding&lt;&gt;</tt> for other mixes of types, a library like
+PETE can tell the compiler the result type of any expression over any
+mix of types.  In particular, if a new class such as <tt>Complex</tt>,
+<tt>Quaternion</tt>, or <tt>Color</tt> is added, the compiler can be
+told what the result of (for example) multiplying a <tt>Color</tt> by
+a <tt>float</tt> is, without anything else in the library having to be
+changed.
+
+<p><tt>TypeEncoding&lt;&gt;</tt> is an example of a traits class.
+Each specialization of the class defines a <tt>typedef</tt> with a
+particular name (in this case, <tt>Result_t</tt>).  The class designer
+could also specify that <tt>TypeEncoding&lt;&gt;</tt>'s
+specializations had to define such things as constant strings:
+
+<blockquote><pre>
+// <em>int op double => double</em>
+template&lt;&gt;
+class TypeEncoding&lt;int, double&gt;
+{
+    typedef double Result_t;
+
+    static const char * const Signature = "{int,double}=>double";
+};
+
+// <em>other classes contain similar definitions</em>
+</pre></blockquote>
+
+<p>to help programs print debugging information:
+
+<blockquote><pre>
+template&lt;class Left, class Right&gt;
+TypeEncoding&lt;Left, Right&gt;::Result_t
+add(const Left &amp; left, const Right &amp; right)
+{
+    cout &lt;&lt; TypeEncoding&lt;Left, Right&gt;::Signature &lt;&lt; endl;
+    return left + right;
+}
+</pre></blockquote>
+
+<p>In general, if the classes in the set associated with a trait all
+adhere to some conventions regarding name definitions, then traits
+classes can be used to implement compile-time polymorphism.  Another
+way to think of this is that each class in a set of traits classes
+provides different set of answers to a pre-defined set of questions.
+
+<p>Since writing a dozen or more specializations of classes like
+<tt>TypeEncoding&lt;&gt;</tt> and <tt>BinaryOp&lt;&gt;</tt> by hand
+would be tedious, time-consuming, and error-prone, PETE provides some
+simple command-line tools that can generate the required C++ code
+automatically.  The <a href="tut-1.html">first tutorial</a> shows how
+to use these tools to integrate a simple 3-element vector class into
+PETE.  Subsequent tutorials show the steps required to integrate more
+complex classes, such as the vectors and lists of the <a
+href="stl.html">Standard Template Library</a> (STL), and how to
+provide additional operators and combiners.
+
+<br>
+<br>
+<center>
+<table>
+<tr>	<td><a href="introduction.html">[Prev]</a>
+	<td><a href="index.html">[Home]</a>
+	<td><a href="tut-1.html">[Next]</a>
+	</tr>
+</table>
+<em>
+<a href="http://www.acl.lanl.gov/pete/">Copyright &copy; Los Alamos National Laboratory 1999</a>
+</em>
+</center>
+
+</body>
+</html>

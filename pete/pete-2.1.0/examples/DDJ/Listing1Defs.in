@@ -1,0 +1,6 @@
+classes
+-----
+  ARG   = "class T[n], class Allocator[n]"
+  CLASS = "vector<T[n], Allocator[n]>"
+
+  

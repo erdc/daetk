@@ -1,0 +1,38 @@
+/*******************************************************************
+ *                                                                 *
+ *             Doctor Dobb's Journal Article Examples              *
+ *                                                                 *
+ *******************************************************************/
+
+The codes in this directory are the example codes used in the
+PETE article submitted to Doctor Dobb's Journal.
+(See html/ddj_article.html).
+
+Listing1.cpp illustrates how trivial it is to add expression-template
+capabilities to the STL vector class.  Iterators are stored in the
+expression tree leaves.
+
+Listing2.cpp extends the first example to evaluate expressions
+involving STL vectors and STL lists.  (It uses iterators as well.)
+
+Listing3.cpp extends the vector example to check that they conform
+(are all the same size) before evaluating the expression.  Since
+we want to extract the vector sizes, we store references to the
+vectors in the expression tree leaves.
+
+Listing4.cpp illustrates the compile-time computation of a trait
+associated with an expression.  The code generates expression
+templates for vectors and lists that store iterators at the leaves.
+A traits class is created that combines the iterator_category
+traits of all the iterators in an expression to see if they are all
+random access or if some are just bidirectional.  This trait is used
+at compile time to select the evaluation mechanism for a particular
+element.  If all the iterators are random access, then we apply a
+functor that contains an offset, otherwise we increment all the
+iterators to the desired location and then dereference them.
+
+Listing1Operators.h is generated from Listing1Defs.in and just
+contains the operators for STL vectors (used by Listin1.cpp and
+Listing3.cpp).  Listing2Operators is generated from Listing2Defs.in
+and contains operators for STL vectors and STL lists (used by
+Listing2.cpp and Listing4.cpp).

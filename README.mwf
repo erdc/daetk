@@ -1,0 +1,40 @@
+June 25 2006
+I am trying to incorporate the linearly implicit time integrators
+into Chris' latest daetk library.
+
+This version is setup to run with the petsc contained in the adh/packages
+directory. I set the following environmental variables
+
+
+DAETK_ARCH  
+darwin32 #for laptop
+darwin64 #for desktop
+
+PETSC_DIR 
+/Users/mfarthin/Public/code/adhBase/adh-mwf-dev/packages/petsc
+
+PETSC_ARCH
+darwin32_mpicc_petsc
+
+The darwin.sources has the extra files that I included in 
+the daetk library.
+
+There were a few minor changes to PetscVec.h and PetscMat.h 
+because gcc 3.3 has some dumb problems with namespaces and 
+expanding macros. I imagine these can be ignored for gcc 4.0.
+
+I made a number of changes to PetscLinearSolver.[h,C] because
+the version in cek-dev had the old SLES module included, but 
+petsc 2.2.1 and later removed it. 
+
+I added a couple of things in the interface for Newton and
+added a computeOwnDeltaForJacobian to the DaeDefinition class
+so that the DaeDefinition can handle delta for a time integrator
+if it wants to.
+
+I changed ParameterDatabase to take a const char* in ctor instead of
+char*
+I also added a string type to it as well
+
+I added some global functions like getGlobalFunctionEvaluations to 
+ FullDataFile.h  

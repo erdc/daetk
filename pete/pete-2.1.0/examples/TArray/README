@@ -1,0 +1,19 @@
+/*******************************************************************
+ *                                                                 *
+ *                          TArray example                         *
+ *                                                                 *
+ *******************************************************************/
+
+This somewhat complicated example demonstrates some of the inner
+workings of PETE, by printing an expression in the order that it
+appears in the source code.
+
+PETE evaluates expressions by evaluating the leaves, and then
+combining the results.  If you were to print out the leaf values
+in LeafFunctor, and the operators during the combine operation,
+then an expression like a+b*c would get printed in postfix notation:
+a, b, c, *, +.  To print elements in order, this example defines
+a ForEachInOrder struct that generalizes PETE's ForEach.
+ForEachInOrder allows for extra operations to be performed
+between evaluation of the sub-trees and before and after.
+(See the file ForEachInOrder.h.)

@@ -1,0 +1,7 @@
+AD_PROG = raha.cmp
+AD_TOP = res
+AD_IVARS = y, yprime, senpar
+AD_OVARS = delta
+AD_PMAX = 10
+AD_PREFIX = h
+AD_OUTPUT_DIR = res4sen

@@ -1,0 +1,7 @@
+AD_PROG = heatiludr.cmp
+AD_TOP = qres
+AD_IVARS = u, uprime, senpar
+AD_OVARS = qsen
+AD_PMAX = 20
+AD_PREFIX = h
+AD_OUTPUT_DIR = res4sen

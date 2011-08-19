@@ -1,0 +1,15 @@
+/*******************************************************************
+ *                                                                 *
+ *                           Vec3 example                          *
+ *                                                                 *
+ *******************************************************************/
+
+This example illustrates the addition of expression template
+capabilities to a user-defined class.
+See the tutorial in html/tut-1.html for a description of this example.
+
+Vec3.h defines a simple vector class that contains 3 elements.
+Unlike the STL example in examples/Vector, we can add an assignment
+operator to this class that recognizes PETE expressions.  Therefore
+this example doesn't tell the MakeOperators tool to generate
+assignment operators that would call the evaluate() function.

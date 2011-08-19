@@ -1,0 +1,581 @@
+include ../config.def
+include sources.h
+
+LIBNAME		= libdaetk
+
+INCLUDES	= -I./pete/pete-2.0/src
+
+DEFS		=
+LDFLAGS		= $(CXXFLAGS)
+SYSLIBS		=
+ARCHIVE		= $(LIBNAME).a
+
+DEFS2		=
+LDFLAGS2	= 
+SYSLIBS2	=
+ARCHIVE2	= $(LIBNAME)2.a
+
+DEFS3		= 
+LDFLAGS3	= 
+SYSLIBS3	=
+ARCHIVE3	= $(LIBNAME)3.a
+
+#################
+# Target Rules
+#################
+
+
+all: debug
+
+debug:
+	$(MAKE) CXXFLAGS='$(DEBUGCXXFLAGS) $(GLOBALCXXFLAGS)' \
+	CFLAGS='$(DEBUGCFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(DEBUGFFLAGS) $(GLOBALFFLAGS)' \
+	$(ARCHIVE) 
+
+
+opt:
+	$(MAKE) CXXFLAGS='$(OPT2CXXFLAGS) $(GLOBALCXXFLAGS)' \
+	FFLAGS='$(OPT2FFLAGS) $(GLOBALFFLAGS)' \
+	CFLAGS='$(OPT2CFLAGS) $(GLOBALCFLAGS)' \
+	$(ARCHIVE) 
+ 
+debug2:
+	$(MAKE) CXXFLAGS='$(DEBUGCXX2FLAGS) $(GLOBALCXX2FLAGS) $(LIBONLYFLAGS)' \
+	CFLAGS='$(DEBUGCFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(DEBUGFFLAGS) $(GLOBALFFLAGS)' \
+	CXX=$(CXX2) DEFS=$(DEFS2) $(ARCHIVE2) 
+
+debug3:
+	$(MAKE) CXXFLAGS='$(DEBUGCXX3FLAGS) $(GLOBALCXX3FLAGS)' \
+	CFLAGS='$(DEBUGCFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(DEBUGFFLAGS) $(GLOBALFFLAGS)' \
+	CXX=$(CXX3) DEFS=$(DEFS3) $(ARCHIVE3) 
+
+opt2:
+	$(MAKE) CXXFLAGS='$(OPT2CXX2FLAGS) $(GLOBALCXX2FLAGS) $(LIBONLYFLAGS)' \
+	CFLAGS='$(OPT2CFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(OPT2FFLAGS) $(GLOBALFFLAGS)' \
+	CXX=$(CXX2) DEFS=$(DEFS2) $(ARCHIVE2) 
+
+opt3:
+	$(MAKE) CXXFLAGS='$(OPT2CXX3FLAGS) $(GLOBALCXX3FLAGS)' \
+	CFLAGS='$(OPT2CFLAGS) $(GLOBALCFLAGS)' \
+	FFLAGS='$(OPT2FFLAGS) $(GLOBALFFLAGS)' CXX=$(CXX3) \
+	DEFS=$(DEFS3) $(ARCHIVE3) 
+
+$(ARCHIVE2): $(OBJS)
+	KCC $(CXXFLAGS) -o $(ARCHIVE2) $(OBJS) ../dae/libdae2.a
+
+
+$(ARCHIVE3): $(OBJS)
+	$(AR) $(ARFLAGS) $(ARCHIVE3) $(OBJS) 
+	$(RANLIB) $(ARCHIVE3)
+
+$(ARCHIVE): $(OBJS)
+	$(LD) $(CXXFLAGS) $(OBJS) -lblas -lm -lg2c -o /dev/null
+	$(AR) $(ARFLAGS) $(ARCHIVE) $(OBJS) 
+	$(RANLIB) $(ARCHIVE)
+
+clean:
+	$(RM) $(OBJS) $(FILESTOCLEAN)
+	/bin/rm -rf ti_files
+
+export_src:
+	cp makefile makefile.sample 
+	tar czvf daetk.tar.gz makefile.sample *.h *.C  *.f pete		
+	cp daetk.tar.gz export
+
+clobber: clean
+	$(RM) $(ARCHIVE)
+
+depend:
+	$(MAKEDEPEND) $(MAKEDEPENDFLAGS) -- $(DEFS) $(INCLUDES) -- $(SRCS) 
+
+.SUFFIXES: .c .cc .cpp .C .o .f
+
+.cc.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+.C.o:
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDES) $(DEFS) -c $<
+
+.f.o:
+	$(F) $(FFLAGS) -c $<
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+DaeDefinition.o: DaeDefinition.h
+DaeDefinition.o: Definitions.h
+DaeDefinition.o: PlatformDefs.h
+DaeDefinition.o: Utilities.h
+DaeDefinition.o: Definitions.h
+DaeDefinition.o: Chronograph.h
+DaeDefinition.o: Tracer.h
+DaeDefinition.o: Vec.h
+DaeDefinition.o: CMRVec.h
+DaeDefinition.o: CMRVecDefinitions.h
+DaeDefinition.o: Utilities.h
+DaeDefinition.o: CMRVecIndex.h
+DaeDefinition.o: VectorFunction.h
+DaeDefinition.o: VecOperators.h
+DaeDefinition.o: CMRVecOperators.h
+DaeDefinition.o: CMRVecIterator.h
+DaeDefinition.o: CMRVecConstIterator.h
+DaeDefinition.o: VecBlas.h
+DaeDefinition.o: CMRVecBlas.h
+DaeDefinition.o: CMRVecBlasd.h
+DaeDefinition.o: DataCollector.h
+Chronograph.o: Chronograph.h
+DaspkPsol.o: DaspkPsol.h
+DaspkPsol.o: Definitions.h
+DaspkPsol.o: Preconditioner.h
+DaspkPsol.o: Vec.h
+DaspkPsol.o: CMRVec.h
+DaspkPsol.o: CMRVecDefinitions.h
+DaspkPsol.o: Utilities.h
+DaspkPsol.o: CMRVecIndex.h
+DaspkPsol.o: DaeDefinition.h
+DaspkPsol.o: Definitions.h
+DaspkPsol.o: PlatformDefs.h
+DaspkPsol.o: Utilities.h
+DaspkPsol.o: Chronograph.h
+DaspkPsol.o: Tracer.h
+DaspkPsol.o: VectorFunction.h
+DaspkPsol.o: VecOperators.h
+DaspkPsol.o: CMRVecOperators.h
+DaspkPsol.o: CMRVecIterator.h
+DaspkPsol.o: CMRVecConstIterator.h
+DaspkPsol.o: VecBlas.h
+DaspkPsol.o: CMRVecBlas.h
+DaspkPsol.o: CMRVecBlasd.h
+DaspkPsol.o: DataCollector.h
+FullDataFile.o: FullDataFile.h
+FullDataFile.o: Definitions.h
+FullDataFile.o: Utilities.h
+FullDataFile.o: Vec.h
+FullDataFile.o: CMRVec.h
+FullDataFile.o: CMRVecDefinitions.h
+FullDataFile.o: CMRVecIndex.h
+FullDataFile.o: VecOperators.h
+FullDataFile.o: CMRVecOperators.h
+FullDataFile.o: CMRVecIterator.h
+FullDataFile.o: CMRVecConstIterator.h
+FullDataFile.o: DataFile.h
+FullDataFile.o: DataCollector.h
+LaFullCholeskySolver.o: LaFullCholeskySolver.h
+LaFullCholeskySolver.o: Definitions.h
+LaFullCholeskySolver.o: Mat.h
+LaFullCholeskySolver.o: mvm.h
+LaFullCholeskySolver.o: mvv.h
+LaFullCholeskySolver.o: mvvind.h
+LaFullCholeskySolver.o: mvvrf.h
+LaFullCholeskySolver.o: mvmrf.h
+LaFullCholeskySolver.o: LinearSolver.h
+LaFullCholeskySolver.o: Vec.h
+LaFullCholeskySolver.o: CMRVec.h
+LaFullCholeskySolver.o: CMRVecDefinitions.h
+LaFullCholeskySolver.o: Utilities.h
+LaFullCholeskySolver.o: CMRVecIndex.h
+LaFullCholeskySolver.o: VecBlas.h
+LaFullCholeskySolver.o: CMRVecBlas.h
+LaFullCholeskySolver.o: CMRVecBlasd.h
+LaFullCholeskySolver.o: VectorFunction.h
+Vec.o: Vec.h
+Vec.o: Definitions.h
+Vec.o: CMRVec.h
+Vec.o: CMRVecDefinitions.h
+Vec.o: Utilities.h
+Vec.o: CMRVecIndex.h
+BandColMat.o: BandColMat.h
+BandColMat.o: Definitions.h
+BandColMat.o: Vec.h
+BandColMat.o: CMRVec.h
+BandColMat.o: CMRVecDefinitions.h
+BandColMat.o: Utilities.h
+BandColMat.o: CMRVecIndex.h
+BandColMat.o: Mat.h
+BandColMat.o: mvm.h
+BandColMat.o: mvv.h
+BandColMat.o: mvvind.h
+BandColMat.o: mvvrf.h
+BandColMat.o: mvmrf.h
+ConstBC.o: ConstBC.h
+ConstBC.o: Definitions.h
+ConstBC.o: Vec.h
+ConstBC.o: CMRVec.h
+ConstBC.o: CMRVecDefinitions.h
+ConstBC.o: Utilities.h
+ConstBC.o: CMRVecIndex.h
+ConstBC.o: BandColMat.h
+ConstBC.o: Mat.h
+ConstBC.o: mvm.h
+ConstBC.o: mvv.h
+ConstBC.o: mvvind.h
+ConstBC.o: mvvrf.h
+ConstBC.o: mvmrf.h
+ConstBC.o: SecondOrderFd.h
+ConstBC.o: Stencil.h
+DaspkRes.o: DaspkRes.h
+DaspkRes.o: DaeDefinition.h
+DaspkRes.o: Definitions.h
+DaspkRes.o: PlatformDefs.h
+DaspkRes.o: Utilities.h
+DaspkRes.o: Definitions.h
+DaspkRes.o: Chronograph.h
+DaspkRes.o: Tracer.h
+DaspkRes.o: Vec.h
+DaspkRes.o: CMRVec.h
+DaspkRes.o: CMRVecDefinitions.h
+DaspkRes.o: Utilities.h
+DaspkRes.o: CMRVecIndex.h
+DaspkRes.o: VectorFunction.h
+DaspkRes.o: VecOperators.h
+DaspkRes.o: CMRVecOperators.h
+DaspkRes.o: CMRVecIterator.h
+DaspkRes.o: CMRVecConstIterator.h
+DaspkRes.o: VecBlas.h
+DaspkRes.o: CMRVecBlas.h
+DaspkRes.o: CMRVecBlasd.h
+DaspkRes.o: DataCollector.h
+FullDirectSolver.o: FullDirectSolver.h
+FullDirectSolver.o: Definitions.h
+FullDirectSolver.o: LinearSolver.h
+FullDirectSolver.o: Vec.h
+FullDirectSolver.o: CMRVec.h
+FullDirectSolver.o: CMRVecDefinitions.h
+FullDirectSolver.o: Utilities.h
+FullDirectSolver.o: CMRVecIndex.h
+FullDirectSolver.o: Mat.h
+FullDirectSolver.o: mvm.h
+FullDirectSolver.o: mvv.h
+FullDirectSolver.o: mvvind.h
+FullDirectSolver.o: mvvrf.h
+FullDirectSolver.o: mvmrf.h
+FullDirectSolver.o: VecOperators.h
+FullDirectSolver.o: CMRVecOperators.h
+FullDirectSolver.o: CMRVecIterator.h
+FullDirectSolver.o: CMRVecConstIterator.h
+FullDirectSolver.o: VecBlas.h
+FullDirectSolver.o: CMRVecBlas.h
+FullDirectSolver.o: CMRVecBlasd.h
+LaFullDirectSolver.o: LaFullDirectSolver.h
+LaFullDirectSolver.o: Definitions.h
+LaFullDirectSolver.o: Vec.h
+LaFullDirectSolver.o: CMRVec.h
+LaFullDirectSolver.o: CMRVecDefinitions.h
+LaFullDirectSolver.o: Utilities.h
+LaFullDirectSolver.o: CMRVecIndex.h
+LaFullDirectSolver.o: VecOperators.h
+LaFullDirectSolver.o: CMRVecOperators.h
+LaFullDirectSolver.o: CMRVecIterator.h
+LaFullDirectSolver.o: CMRVecConstIterator.h
+LaFullDirectSolver.o: VecBlas.h
+LaFullDirectSolver.o: CMRVecBlas.h
+LaFullDirectSolver.o: CMRVecBlasd.h
+LaFullDirectSolver.o: IntVec.h
+LaFullDirectSolver.o: Mat.h
+LaFullDirectSolver.o: mvm.h
+LaFullDirectSolver.o: mvv.h
+LaFullDirectSolver.o: mvvind.h
+LaFullDirectSolver.o: mvvrf.h
+LaFullDirectSolver.o: mvmrf.h
+LaFullDirectSolver.o: LinearSolver.h
+VecOperators.o: VecOperators.h
+VecOperators.o: CMRVec.h
+VecOperators.o: CMRVecDefinitions.h
+VecOperators.o: Utilities.h
+VecOperators.o: CMRVecIndex.h
+VecOperators.o: CMRVecOperators.h
+VecOperators.o: CMRVecIterator.h
+VecOperators.o: CMRVecConstIterator.h
+VecOperators.o: Definitions.h
+mvm.o: mvm.h
+mvm.o: Definitions.h
+mvm.o: mvv.h
+mvm.o: mvvind.h
+mvm.o: mvvrf.h
+mvm.o: mvmrf.h
+BiCGstab.o: BiCGstab.h
+BiCGstab.o: IntVec.h
+BiCGstab.o: CMRVec.h
+BiCGstab.o: CMRVecDefinitions.h
+BiCGstab.o: Utilities.h
+BiCGstab.o: CMRVecIndex.h
+BiCGstab.o: Definitions.h
+BiCGstab.o: Vec.h
+BiCGstab.o: VecOperators.h
+BiCGstab.o: CMRVecOperators.h
+BiCGstab.o: CMRVecIterator.h
+BiCGstab.o: CMRVecConstIterator.h
+BiCGstab.o: VecBlas.h
+BiCGstab.o: CMRVecBlas.h
+BiCGstab.o: CMRVecBlasd.h
+BiCGstab.o: LinearSolver.h
+BiCGstab.o: LaFullDirectSolver.h
+BiCGstab.o: Mat.h
+BiCGstab.o: mvm.h
+BiCGstab.o: mvv.h
+BiCGstab.o: mvvind.h
+BiCGstab.o: mvvrf.h
+BiCGstab.o: mvmrf.h
+BiCGstab.o: LaBandedDirectSolver.h
+BiCGstab.o: BandColMat.h
+BiCGstab.o: DataCollector.h
+BiCGstab.o: VectorNorm.h
+BiCGstab.o: VectorFunction.h
+BiCGstab.o: LinearOperator.h
+BiCGstab.o: Preconditioner.h
+DASPK.o: DASPK.h
+DASPK.o: Integrator.h
+DASPK.o: Definitions.h
+DASPK.o: Vec.h
+DASPK.o: CMRVec.h
+DASPK.o: CMRVecDefinitions.h
+DASPK.o: Utilities.h
+DASPK.o: CMRVecIndex.h
+DASPK.o: DaeDefinition.h
+DASPK.o: Definitions.h
+DASPK.o: PlatformDefs.h
+DASPK.o: Utilities.h
+DASPK.o: Chronograph.h
+DASPK.o: Tracer.h
+DASPK.o: VectorFunction.h
+DASPK.o: VecOperators.h
+DASPK.o: CMRVecOperators.h
+DASPK.o: CMRVecIterator.h
+DASPK.o: CMRVecConstIterator.h
+DASPK.o: VecBlas.h
+DASPK.o: CMRVecBlas.h
+DASPK.o: CMRVecBlasd.h
+DASPK.o: DataCollector.h
+DASPK.o: Jacobian.h
+DASPK.o: LinearOperator.h
+DASPK.o: Preconditioner.h
+DASPK.o: DaspkRes.h
+DASPK.o: DaspkJac.h
+DASPK.o: DaspkPsol.h
+DASPK.o: IntVec.h
+DataCollector.o: DataCollector.h
+DataCollector.o: Definitions.h
+DataCollector.o: Utilities.h
+DataCollector.o: Vec.h
+DataCollector.o: CMRVec.h
+DataCollector.o: CMRVecDefinitions.h
+DataCollector.o: CMRVecIndex.h
+GlobalDaeDef.o: GlobalDaeDef.h
+GlobalDaeDef.o: DaeDefinition.h
+GlobalDaeDef.o: Definitions.h
+GlobalDaeDef.o: PlatformDefs.h
+GlobalDaeDef.o: Utilities.h
+GlobalDaeDef.o: Definitions.h
+GlobalDaeDef.o: Chronograph.h
+GlobalDaeDef.o: Tracer.h
+GlobalDaeDef.o: Vec.h
+GlobalDaeDef.o: CMRVec.h
+GlobalDaeDef.o: CMRVecDefinitions.h
+GlobalDaeDef.o: Utilities.h
+GlobalDaeDef.o: CMRVecIndex.h
+GlobalDaeDef.o: VectorFunction.h
+GlobalDaeDef.o: VecOperators.h
+GlobalDaeDef.o: CMRVecOperators.h
+GlobalDaeDef.o: CMRVecIterator.h
+GlobalDaeDef.o: CMRVecConstIterator.h
+GlobalDaeDef.o: VecBlas.h
+GlobalDaeDef.o: CMRVecBlas.h
+GlobalDaeDef.o: CMRVecBlasd.h
+GlobalDaeDef.o: DataCollector.h
+LiBandedDirectSolver.o: LiBandedDirectSolver.h
+LiBandedDirectSolver.o: BandColMat.h
+LiBandedDirectSolver.o: Definitions.h
+LiBandedDirectSolver.o: Vec.h
+LiBandedDirectSolver.o: CMRVec.h
+LiBandedDirectSolver.o: CMRVecDefinitions.h
+LiBandedDirectSolver.o: Utilities.h
+LiBandedDirectSolver.o: CMRVecIndex.h
+LiBandedDirectSolver.o: Mat.h
+LiBandedDirectSolver.o: mvm.h
+LiBandedDirectSolver.o: mvv.h
+LiBandedDirectSolver.o: mvvind.h
+LiBandedDirectSolver.o: mvvrf.h
+LiBandedDirectSolver.o: mvmrf.h
+LiBandedDirectSolver.o: LinearSolver.h
+LiBandedDirectSolver.o: VecBlas.h
+LiBandedDirectSolver.o: CMRVecBlas.h
+LiBandedDirectSolver.o: CMRVecBlasd.h
+PreCG.o: PreCG.h
+PreCG.o: IntVec.h
+PreCG.o: CMRVec.h
+PreCG.o: CMRVecDefinitions.h
+PreCG.o: Utilities.h
+PreCG.o: CMRVecIndex.h
+PreCG.o: Definitions.h
+PreCG.o: Vec.h
+PreCG.o: VecOperators.h
+PreCG.o: CMRVecOperators.h
+PreCG.o: CMRVecIterator.h
+PreCG.o: CMRVecConstIterator.h
+PreCG.o: VecBlas.h
+PreCG.o: CMRVecBlas.h
+PreCG.o: CMRVecBlasd.h
+PreCG.o: LinearSolver.h
+PreCG.o: LaFullDirectSolver.h
+PreCG.o: Mat.h
+PreCG.o: mvm.h
+PreCG.o: mvv.h
+PreCG.o: mvvind.h
+PreCG.o: mvvrf.h
+PreCG.o: mvmrf.h
+PreCG.o: LaBandedDirectSolver.h
+PreCG.o: BandColMat.h
+PreCG.o: DataCollector.h
+PreCG.o: VectorNorm.h
+PreCG.o: VectorFunction.h
+PreCG.o: LinearOperator.h
+PreCG.o: Preconditioner.h
+WeightedRMSNorm.o: WeightedRMSNorm.h
+WeightedRMSNorm.o: VectorNorm.h
+WeightedRMSNorm.o: Definitions.h
+WeightedRMSNorm.o: Vec.h
+WeightedRMSNorm.o: CMRVec.h
+WeightedRMSNorm.o: CMRVecDefinitions.h
+WeightedRMSNorm.o: Utilities.h
+WeightedRMSNorm.o: CMRVecIndex.h
+WeightedRMSNorm.o: VecOperators.h
+WeightedRMSNorm.o: CMRVecOperators.h
+WeightedRMSNorm.o: CMRVecIterator.h
+WeightedRMSNorm.o: CMRVecConstIterator.h
+WeightedRMSNorm.o: VecBlas.h
+WeightedRMSNorm.o: CMRVecBlas.h
+WeightedRMSNorm.o: CMRVecBlasd.h
+mvv.o: mvv.h
+mvv.o: Definitions.h
+mvv.o: mvvind.h
+mvv.o: mvvrf.h
+CMRVecBlasd.o: CMRVecBlasd.h
+CMRVecBlasd.o: CMRVec.h
+CMRVecBlasd.o: CMRVecDefinitions.h
+CMRVecBlasd.o: Utilities.h
+CMRVecBlasd.o: CMRVecIndex.h
+DataFile.o: DataFile.h
+DataFile.o: Definitions.h
+DataFile.o: Utilities.h
+DataFile.o: Vec.h
+DataFile.o: CMRVec.h
+DataFile.o: CMRVecDefinitions.h
+DataFile.o: CMRVecIndex.h
+DataFile.o: DataCollector.h
+ParameterDatabase.o: ParameterDatabase.h
+ParameterDatabase.o: Utilities.h
+ParameterDatabase.o: Definitions.h
+ParameterDatabase.o: IntVec.h
+ParameterDatabase.o: CMRVec.h
+ParameterDatabase.o: CMRVecDefinitions.h
+ParameterDatabase.o: CMRVecIndex.h
+ParameterDatabase.o: Vec.h
+IntVec.o: IntVec.h
+IntVec.o: CMRVec.h
+IntVec.o: CMRVecDefinitions.h
+IntVec.o: Utilities.h
+IntVec.o: CMRVecIndex.h
+IntVec.o: Definitions.h
+ModifiedNewton.o: ModifiedNewton.h
+ModifiedNewton.o: NonlinearSolver.h
+ModifiedNewton.o: Definitions.h
+ModifiedNewton.o: VectorFunction.h
+ModifiedNewton.o: Vec.h
+ModifiedNewton.o: CMRVec.h
+ModifiedNewton.o: CMRVecDefinitions.h
+ModifiedNewton.o: Utilities.h
+ModifiedNewton.o: CMRVecIndex.h
+ModifiedNewton.o: VecOperators.h
+ModifiedNewton.o: CMRVecOperators.h
+ModifiedNewton.o: CMRVecIterator.h
+ModifiedNewton.o: CMRVecConstIterator.h
+ModifiedNewton.o: VecBlas.h
+ModifiedNewton.o: CMRVecBlas.h
+ModifiedNewton.o: CMRVecBlasd.h
+ModifiedNewton.o: LinearSolver.h
+ModifiedNewton.o: VectorNorm.h
+ModifiedNewton.o: DataCollector.h
+CMRVecBlass.o: CMRVecBlass.h
+CMRVecBlass.o: CMRVec.h
+CMRVecBlass.o: CMRVecDefinitions.h
+CMRVecBlass.o: Utilities.h
+CMRVecBlass.o: CMRVecIndex.h
+DaspkJac.o: DaspkJac.h
+DaspkJac.o: Jacobian.h
+DaspkJac.o: Definitions.h
+DaspkJac.o: Vec.h
+DaspkJac.o: CMRVec.h
+DaspkJac.o: CMRVecDefinitions.h
+DaspkJac.o: Utilities.h
+DaspkJac.o: CMRVecIndex.h
+DaspkJac.o: VectorFunction.h
+DaspkJac.o: LinearOperator.h
+FLCBDF.o: FLCBDF.h
+FLCBDF.o: Integrator.h
+FLCBDF.o: Definitions.h
+FLCBDF.o: Vec.h
+FLCBDF.o: CMRVec.h
+FLCBDF.o: CMRVecDefinitions.h
+FLCBDF.o: Utilities.h
+FLCBDF.o: CMRVecIndex.h
+FLCBDF.o: VecOperators.h
+FLCBDF.o: CMRVecOperators.h
+FLCBDF.o: CMRVecIterator.h
+FLCBDF.o: CMRVecConstIterator.h
+FLCBDF.o: VecBlas.h
+FLCBDF.o: CMRVecBlas.h
+FLCBDF.o: CMRVecBlasd.h
+FLCBDF.o: DaeDefinition.h
+FLCBDF.o: Definitions.h
+FLCBDF.o: PlatformDefs.h
+FLCBDF.o: Utilities.h
+FLCBDF.o: Chronograph.h
+FLCBDF.o: Tracer.h
+FLCBDF.o: VectorFunction.h
+FLCBDF.o: DataCollector.h
+FLCBDF.o: LinearSolver.h
+FLCBDF.o: ModifiedNewton.h
+FLCBDF.o: NonlinearSolver.h
+FLCBDF.o: VectorNorm.h
+FLCBDF.o: Jacobian.h
+FLCBDF.o: LinearOperator.h
+LaBandedDirectSolver.o: LaBandedDirectSolver.h
+LaBandedDirectSolver.o: BandColMat.h
+LaBandedDirectSolver.o: Definitions.h
+LaBandedDirectSolver.o: Vec.h
+LaBandedDirectSolver.o: CMRVec.h
+LaBandedDirectSolver.o: CMRVecDefinitions.h
+LaBandedDirectSolver.o: Utilities.h
+LaBandedDirectSolver.o: CMRVecIndex.h
+LaBandedDirectSolver.o: Mat.h
+LaBandedDirectSolver.o: mvm.h
+LaBandedDirectSolver.o: mvv.h
+LaBandedDirectSolver.o: mvvind.h
+LaBandedDirectSolver.o: mvvrf.h
+LaBandedDirectSolver.o: mvmrf.h
+LaBandedDirectSolver.o: LinearSolver.h
+LaBandedDirectSolver.o: VecBlas.h
+LaBandedDirectSolver.o: CMRVecBlas.h
+LaBandedDirectSolver.o: CMRVecBlasd.h
+LaBandedDirectSolver.o: IntVec.h
+mvblas.o: mvv.h
+mvblas.o: Definitions.h
+mvblas.o: mvvind.h
+mvblas.o: mvvrf.h
+mvblas.o: mvblas.h
+VectorFunction.o: VectorFunction.h
+VectorFunction.o: Definitions.h
+VectorFunction.o: Vec.h
+VectorFunction.o: CMRVec.h
+VectorFunction.o: CMRVecDefinitions.h
+VectorFunction.o: Utilities.h
+VectorFunction.o: CMRVecIndex.h

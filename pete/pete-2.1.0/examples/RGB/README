@@ -1,0 +1,17 @@
+/*******************************************************************
+ *                                                                 *
+ *                           RGB example                           *
+ *                                                                 *
+ *******************************************************************/
+
+This example illustrates compile-time synthesis of types using PETE.
+See the tutorial in html/tut-3.html for a description of this example.
+
+Mathemetical operations between three `colors' (Operand<Blue>,
+Operand<Red> and Operand<Green>) are implemented.  Functors are defined
+that extract the types of the leaves.  The PETE class Combine2
+is specialized in RGB.h to tell PETE how to combine the types in
+an expression.
+
+Type computations of this sort are often used to select particular
+algorithms based on the types of the objects appearing in an expression.

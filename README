@@ -1,0 +1,57 @@
+To build the library (libdaetk.a) you need to set the following
+environment variables:
+
+DAETK_DIR
+DAETK_ARCH
+PETSC_DIR
+PETSC_ARCH
+
+For example:
+
+setenv DAETK_DIR ${HOME}/src/daetk
+setenv DAETK_ARCH linux
+setenv PETSC_DIR ${HOME}/src/petsc
+setenv PETSC_ARCH linux-gnu-c-debug
+
+You can then build daetk by typing make. You may also want to build pdetk with 'cd pdetk; make'.
+
+The various compilation parameters can be set in config/${DAETK_ARCH} if
+you want to change from the options I include or add support for a new
+compiler/OS. Since different compilers have different ways of building
+archives there is also a config/${DAETK_ARCH}.archive file to specify the
+make rule for building an archive.  If you have an optimized
+scientific library with BLAS and LAPACK routines you will likely want
+to copy the linux config files as they don't indlude sample
+implementations of the LAPACK routines and their dependencies.
+
+To build an application it will likely be helpful to download the example in
+daeExamples.tar.gz first and compile it with your enivironment configured as
+above.  If you have something like
+
+~/myCode/daetk
+
+then try
+
+cd ~/myCode
+tar xzvf daeExamples.tar.gz
+cd daeExamples/rich/1d/sand
+make 
+driver
+
+
+
+---Patform Notes---
+---darwin---
+Installed gfortran and openmpi from fink
+Installed petsc-2.3.3-p6:
+PETSC configure command:  ./config/configure.py --CC=mpicc --FC=mpif90 --with-mpi=1 --with-mpi-compilers=1 --with-shared
+used gfortran from fink (/sw/bin/gfortran)
+setenv PETSC_ARCH darwin8.10.1-c-debug
+setenv DAETK_ARCH darwin
+---linux---
+Installed g++,gfortran, and openmpi (I installed rpm's via yum)
+Installed petsc-2.3.3-p6:
+PETSC configure command: ./config/configure.py --CC=mpicc --FC=mpif90 --with-mpi=1 --with-mpi-compilers=1 --with-shared
+setenv PETC_ARCH linux-gnu-c-debug
+setenv DAETK_ARCH linux
+

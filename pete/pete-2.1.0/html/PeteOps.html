@@ -1,0 +1,255 @@
+<!-- introduction.html : introduction to PETE tutorials -->
+<!-- $Id: PeteOps.html,v 1.1 2001/08/10 15:24:14 ckees Exp $ -->
+
+<html>
+  <head>
+    <title>PeteOps.in</title>
+  </head>
+
+  <body bgcolor="#ffffff" link="#0099cc" alink="#0099cc" vlink="#cc6600">
+    <h1>PeteOps.in</h1>
+    <pre>
+unaryOps
+-----
+  TAG = "FnArcCos"
+  FUNCTION = "acos"
+  EXPR = "(acos(a))"
+-----
+  TAG = "FnArcSin"
+  FUNCTION = "asin"
+  EXPR = "(asin(a))"
+-----
+  TAG = "FnArcTan"
+  FUNCTION = "atan"
+  EXPR = "(atan(a))"
+-----
+  TAG = "FnCeil"
+  FUNCTION = "ceil"
+  EXPR = "(ceil(a))"
+-----
+  TAG = "FnCos"
+  FUNCTION = "cos"
+  EXPR = "(cos(a))"
+-----
+  TAG = "FnHypCos"
+  FUNCTION = "cosh"
+  EXPR = "(cosh(a))"
+-----
+  TAG = "FnExp"
+  FUNCTION = "exp"
+  EXPR = "(exp(a))"
+-----
+  TAG = "FnFabs"
+  FUNCTION = "fabs"
+  EXPR = "(fabs(a))"
+-----
+  TAG = "FnFloor"
+  FUNCTION = "floor"
+  EXPR = "(floor(a))"
+-----
+  TAG = "FnLog"
+  FUNCTION = "log"
+  EXPR = "(log(a))"
+-----
+  TAG = "FnLog10"
+  FUNCTION = "log10"
+  EXPR = "(log10(a))"
+-----
+  TAG = "FnSin"
+  FUNCTION = "sin"
+  EXPR = "(sin(a))"
+-----
+  TAG = "FnHypSin"
+  FUNCTION = "sinh"
+  EXPR = "(sinh(a))"
+-----
+  TAG = "FnSqrt"
+  FUNCTION = "sqrt"
+  EXPR = "(sqrt(a))"
+-----
+  TAG = "FnTan"
+  FUNCTION = "tan"
+  EXPR = "(tan(a))"
+-----
+  TAG = "FnHypTan"
+  FUNCTION = "tanh"
+  EXPR = "(tanh(a))"
+-----
+  TAG = "OpUnaryMinus"
+  FUNCTION = "operator-"
+  EXPR = "(-a)"
+-----
+  TAG = "OpUnaryPlus"
+  FUNCTION = "operator+"
+  EXPR = "(+a)"
+-----
+  TAG = "OpBitwiseNot"
+  FUNCTION = "operator~"
+  EXPR = "(~a)"
+-----
+  TAG = "OpIdentity"
+  FUNCTION = "PETE_identity"
+  EXPR = "(a)"
+
+unaryBoolOps
+-----
+  TAG = "OpNot"
+  FUNCTION = "operator!"
+  EXPR = "(!a)"
+
+unaryCastOps
+-----
+  TAG = "OpCast"
+  FUNCTION = "peteCast"
+  EXPR = "T1(a)"
+
+binaryOps
+-----
+  TAG = "OpAdd"
+  FUNCTION = "operator+"
+  EXPR = "(a + b)"
+-----
+  TAG = "OpSubtract"
+  FUNCTION = "operator-"
+  EXPR = "(a - b)"
+-----
+  TAG = "OpMultiply"
+  FUNCTION = "operator*"
+  EXPR = "(a * b)"
+-----
+  TAG = "OpDivide"
+  FUNCTION = "operator/"
+  EXPR = "(a / b)"
+-----
+  TAG = "OpMod"
+  FUNCTION = "operator%"
+  EXPR = "(a % b)"
+-----
+  TAG = "OpBitwiseAnd"
+  FUNCTION = "operator&"
+  EXPR = "(a & b)"
+-----
+  TAG = "OpBitwiseOr"
+  FUNCTION = "operator|"
+  EXPR = "(a | b)"
+-----
+  TAG = "OpBitwiseXor"
+  FUNCTION = "operator^"
+  EXPR = "(a ^ b)"
+-----
+  TAG = "FnLdexp"
+  FUNCTION = "ldexp"
+  EXPR = "(ldexp(a,b))"
+-----
+  TAG = "FnPow"
+  FUNCTION = "pow"
+  EXPR = "(pow(a,b))"
+-----
+  TAG = "FnFmod"
+  FUNCTION = "fmod"
+  EXPR = "(fmod(a,b))"
+-----
+  TAG = "FnArcTan2"
+  FUNCTION = "atan2"
+  EXPR = "(atan2(a,b))"
+
+binaryBoolOps
+-----
+  TAG = "OpLT"
+  FUNCTION = "operator&lt;"
+  EXPR = "(a &lt; b)"
+-----
+  TAG = "OpLE"
+  FUNCTION = "operator&lt;="
+  EXPR = "(a &lt;= b)"
+-----
+  TAG = "OpGT"
+  FUNCTION = "operator&gt;"
+  EXPR = "(a &gt; b)"
+-----
+  TAG = "OpGE"
+  FUNCTION = "operator&gt;="
+  EXPR = "(a &gt;= b)"
+-----
+  TAG = "OpEQ"
+  FUNCTION = "operator=="
+  EXPR = "(a == b)"
+-----
+  TAG = "OpNE"
+  FUNCTION = "operator!="
+  EXPR = "(a != b)"
+-----
+  TAG = "OpAnd"
+  FUNCTION = "operator&&"
+  EXPR = "(a && b)"
+-----
+  TAG = "OpOr"
+  FUNCTION = "operator||"
+  EXPR = "(a || b)"
+
+binaryLeftOps
+-----
+  TAG = "OpLeftShift"
+  FUNCTION = "operator&lt;&lt;"
+  EXPR = "(a &lt;&lt; b)"
+-----
+  TAG = "OpRightShift"
+  FUNCTION = "operator&gt;&gt;"
+  EXPR = "(a &gt;&gt; b)"
+
+assignOp
+-----
+  TAG = "OpAssign"
+  FUNCTION = "assign"
+  EXPR = "(a = b)"
+
+binaryAssignOps
+-----
+  TAG = "OpAddAssign"
+  FUNCTION = "operator+="
+  EXPR = "(a += b)"
+-----
+  TAG = "OpSubtractAssign"
+  FUNCTION = "operator-="
+  EXPR = "(a -= b)"
+-----
+  TAG = "OpMultiplyAssign"
+  FUNCTION = "operator*="
+  EXPR = "(a *= b)"
+-----
+  TAG = "OpDivideAssign"
+  FUNCTION = "operator/="
+  EXPR = "(a /= b)"
+-----
+  TAG = "OpModAssign"
+  FUNCTION = "operator%="
+  EXPR = "(a %= b)"
+-----
+  TAG = "OpBitwiseOrAssign"
+  FUNCTION = "operator|="
+  EXPR = "(a |= b)"
+-----
+  TAG = "OpBitwiseAndAssign"
+  FUNCTION = "operator&="
+  EXPR = "(a &= b)"
+-----
+  TAG = "OpBitwiseXorAssign"
+  FUNCTION = "operator^="
+  EXPR = "(a ^= b)"
+-----
+  TAG = "OpLeftShiftAssign"
+  FUNCTION = "operator&lt;&lt;="
+  EXPR = "(a &lt;&lt;= b)"
+-----
+  TAG = "OpRightShiftAssign"
+  FUNCTION = "operator&gt;&gt;="
+  EXPR = "(a &gt;&gt;= b)"
+
+trinaryOps
+-----
+  TAG = "FnWhere"
+  FUNCTION = "where"
+  EXPR = "(a ? b : c)"
+    </pre>
+  </body>
+</html>

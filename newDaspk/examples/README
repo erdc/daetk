@@ -1,0 +1,6 @@
+In this directory, you can find three sub-directories which contain the
+test examples. 
+
+ADF ---- DASPK with ADIFOR (automatic differentiation tool) option
+DM  ---- finite difference approximation only,
+MPI ---- Sensitivity analysis with MPI packages.

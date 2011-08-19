@@ -1,0 +1,8 @@
+classes
+-----
+  ARG   = "class T[n]"
+  CLASS = "vector<T[n]>"
+-----
+  ARG   = "class T[n]"
+  CLASS = "list<T[n]>"
+

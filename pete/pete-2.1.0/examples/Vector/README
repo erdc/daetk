@@ -1,0 +1,39 @@
+/*******************************************************************
+ *                                                                 *
+ *                       STL vector example                        *
+ *                                                                 *
+ *******************************************************************/
+                            
+This example illustrates how simple it is to use PETE with a
+Standard Template Library (STL) container class. See the tutorial in
+html/tut-2.html for a description of this example.
+
+The four-line input file VectorDefs.in describes the STL vector class
+to the MakeOperators tool which automatically produces the 249
+operator definitions in VectorOperators.h.  (Type 'make operators'
+to rebuild VectorOperators.h.)  Including these operators in your
+code will cause arbitrary mathematical expressions involving STL
+vectors, such as a+b*sin(2+c)/d, to return expression template objects.
+
+The file Eval.h contains the components necessary to efficiently
+evaluate the resulting expression template objects.  It defines
+a CreateLeaf functor that tells PETE to store references to the
+vectors in the expression tree (to avoid unnecessary copies),
+a SizeLeaf functor that is used to check that the vectors conform,
+and an evaluate() function that will be called by the PETE global
+assignment operators, like assign(), operator+= etc.
+
+By including Eval.h, and VectorOperators.h, you can write
+high-level data-parallel code like:
+
+std::vector<double> a(100),b(100),c(100);
+...
+a = b+2*sin(c-4.0);
+
+which will be implemented by an efficient loop that involves
+no temporary arrays:
+
+for (i=0;i<a.size();++i)
+{
+  a[i] = b[i]+2*sin(c[i]-4.0);
+}

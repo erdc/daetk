@@ -1,0 +1,7 @@
+AD_PROG = web.cmp
+AD_TOP = res
+AD_IVARS = u, uprime
+AD_OVARS = delta
+AD_PMAX = 100
+AD_PREFIX = j
+AD_OUTPUT_DIR = jac

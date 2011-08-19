@@ -1,0 +1,8 @@
+AD_PROG = web.cmp
+AD_TOP = res
+AD_IVARS = u, uprime, senpara
+AD_OVARS = delta
+AD_PMAX = 1
+AD_PREFIX = g
+AD_SCALAR_GRADIENTS = true
+AD_OUTPUT_DIR = res4sen
