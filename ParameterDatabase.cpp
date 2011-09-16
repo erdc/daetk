@@ -1,5 +1,6 @@
 #include "ParameterDatabase.h"
 #include "mpi.h"
+
 #include <cassert>
 
 namespace Daetk 
@@ -10,9 +11,13 @@ namespace Petsc
   {
     extern "C"
     {
+#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #undef __cplusplus
+#endif
 #include "petsc.h"
+#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #define __cplusplus
+#endif
     }
   }
 }

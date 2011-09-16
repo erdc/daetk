@@ -12,7 +12,9 @@ namespace Petsc
   {
     extern "C"
     {
+#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #undef __cplusplus
+#endif
 #include "petsc.h"
 #include "petscvec.h"
 #include "petscda.h"
@@ -20,7 +22,9 @@ namespace Petsc
       //mwf was #include "petscsles.h"
 #include "petscksp.h"
 #include "petscpc.h" //cek added for development version of PETSC
+#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #define __cplusplus
+#endif
     }
   }
 

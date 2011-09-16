@@ -11,12 +11,16 @@ namespace Petsc
        //mwf 090104 seems to be some voodoo with order of includes
        //mwf from petsc worked with petscda.h in between petscvec
        //mwf and petcmat
+#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #undef __cplusplus
+#endif
 #include "petsc.h"
 #include "petscvec.h"
 #include "petscda.h"
 #include "petscmat.h"
+#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #define __cplusplus
+#endif
     }
   }
 

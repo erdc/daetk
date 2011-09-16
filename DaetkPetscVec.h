@@ -22,11 +22,13 @@ namespace Daetk
     {
       extern "C"
       {
-#ifdef __cplusplus
+#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #undef __cplusplus
 #endif
 #include "mpi.h"
+#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #define __cplusplus
+#endif
       }
     }
   }
