@@ -1,4 +1,5 @@
 #include "DaetkPetscVecBlas.h"
+#include <cstdio>
 //need to fix the nonlocal stuff
 namespace Daetk 
 {

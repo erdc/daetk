@@ -1,5 +1,5 @@
 #include "DaetkPetscMat.h"
-
+#include <cstdio>
 namespace Daetk 
 {
 namespace Petsc
