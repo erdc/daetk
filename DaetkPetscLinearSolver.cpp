@@ -17,7 +17,7 @@ namespace Petsc
 #endif
 #include "petsc.h"
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdm.h"
       //mwf 090104 PETSc 2.2.0 got rid of SLES completely
       //mwf was #include "petscsles.h"
 #include "petscksp.h"
@@ -133,7 +133,7 @@ LinearSolver::~LinearSolver()
   //mwf 090104 PETSc 2.2.0 got rid of SLES completely
   //mwf replaced SLES prefix with KSP
   if (sles)
-    ierr = cc::KSPDestroy(sles);
+    ierr = cc::KSPDestroy(&sles);
 }
 
 void LinearSolver::attachMat(Mat& matIn, bool clear)
@@ -144,7 +144,7 @@ void LinearSolver::attachMat(Mat& matIn, bool clear)
   if (clear ||  !sles)
     {
       if (sles)
-        ierr = KSPDestroy(sles);
+        ierr = KSPDestroy(&sles);
       ierr = KSPCreate(PETSC_COMM_WORLD,&sles);  
       ierr = KSPGetPC(sles,&pc); 
       //mwf 090104 PETSc 2.2.0 got rid of SLES completely
@@ -165,7 +165,7 @@ void LinearSolver::attachSerialMat(Mat& matIn, bool clear)
   if (clear ||  !sles)
     {
       if (sles)
-        ierr = KSPDestroy(sles);
+        ierr = KSPDestroy(&sles);
       ierr = KSPCreate(PETSC_COMM_SELF,&sles);  
       ierr = KSPGetPC(sles,&pc); 
       //mwf 090104 PETSc 2.2.0 got rid of SLES completely
@@ -242,7 +242,7 @@ bool LinearSolver::solve(const Vec& bIn,Vec& xIn)
       if (norm)
         {
           scaleAttache.attachToTarget(norm->getScaling());
-          PCDiagonalScaleSet(pc,const_cast<_p_Vec*>(scaleAttache.v_.castToConstPetsc()));
+          PCSetDiagonalScale(pc,const_cast<_p_Vec*>(scaleAttache.v_.castToConstPetsc()));
         }
       else
         {
@@ -425,13 +425,13 @@ void LinearSolver::setPreconditioning(Preconditioning p)
   switch(p)
     {
     case LEFT:
-      ierr = KSPSetPreconditionerSide(sles,PC_LEFT);
+      ierr = KSPSetPCSide(sles,PC_LEFT);
       break; 
     case RIGHT:
-      ierr = KSPSetPreconditionerSide(sles,PC_RIGHT); 
+      ierr = KSPSetPCSide(sles,PC_RIGHT); 
       break; 
     case SYMMETRIC:
-      ierr = KSPSetPreconditionerSide(sles,PC_SYMMETRIC);
+      ierr = KSPSetPCSide(sles,PC_SYMMETRIC);
       break; 
     }
 }
@@ -512,8 +512,10 @@ void LinearSolver::setPreconditioner(Preconditioner p)
 void LinearSolver::setRedundantPreconditioner(Preconditioner p)
 {
   using namespace cc;
+  _p_KSP* kspr;
   _p_PC* pcr;
-  PCRedundantGetPC(pc,&pcr);
+  PCRedundantGetKSP(pc,&kspr);
+  KSPGetPC(kspr,&pcr);
   switch(p)
     {
     case NONE:
@@ -717,7 +719,7 @@ void LinearSolver::AdditiveSchwarz::setSubdomainIndexSets(std::vector< IndexSet 
       for (unsigned int j=0;j<nodes[i].size();j++)
         int_is[j]=nodes[i][j]*blocksize;
       
-      ISCreateBlock(PETSC_COMM_SELF,blocksize,nodes[i].size(),int_is,&(is[i]));
+      ISCreateBlock(PETSC_COMM_SELF,blocksize,nodes[i].size(),int_is,PETSC_COPY_VALUES,&(is[i]));
       delete [] int_is;
     }
   ierr = PCASMSetLocalSubdomains(pc,nodes.size(),is,PETSC_NULL);
@@ -726,7 +728,7 @@ void LinearSolver::AdditiveSchwarz::setSubdomainIndexSets(std::vector< IndexSet 
 LinearSolver::AdditiveSchwarz::~AdditiveSchwarz()
 {
   for (int i=nsdLocal-1;i>=0;i--)
-    cc::ISDestroy(is[i]);
+    cc::ISDestroy(&is[i]);
   delete [] is;
 }
 

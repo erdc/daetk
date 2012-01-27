@@ -16,7 +16,7 @@ namespace Petsc
 #endif
 #include "petsc.h"
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdm.h"
 #include "petscmat.h"
 #ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #define __cplusplus
@@ -57,7 +57,7 @@ Mat::Mat(int neq):
 
 Mat::~Mat()
 {
-  ierr = cc::MatDestroy(mat);
+  ierr = cc::MatDestroy(&mat);
 }
 
 Mat::Mat(int nGlobalRows, int nDiagonals, int nOffDiagonals, 
@@ -322,18 +322,18 @@ void Mat::setInsertionOrder(Insertion s)
     case COLUMN_ORIENTED:
       ierr = cc::MatSetOption(mat,cc::MAT_ROW_ORIENTED,cc::PETSC_FALSE);
       break;
-//     case ROWS_SORTED:
-//       ierr = cc::MatSetOption(mat,cc::MAT_ROWS_SORTED); 
-//       break;
-//     case ROWS_UNSORTED:
-//       ierr = cc::MatSetOption(mat,cc::MAT_ROWS_UNSORTED); 
-//       break;
-//     case COLUMNS_SORTED:
-//       ierr = cc::MatSetOption(mat,cc::MAT_COLUMNS_SORTED); 
-//       break;
-//     case COLUMNS_UNSORTED:
-//       ierr = cc::MatSetOption(mat,cc::MAT_COLUMNS_UNSORTED); 
-//       break;
+    // case ROWS_SORTED:
+    //   ierr = cc::MatSetOption(mat,cc::MAT_ROWS_SORTED); 
+    //   break;
+    // case ROWS_UNSORTED:
+    //   ierr = cc::MatSetOption(mat,cc::MAT_ROWS_UNSORTED); 
+    //   break;
+    // case COLUMNS_SORTED:
+    //   ierr = cc::MatSetOption(mat,cc::MAT_COLUMNS_SORTED); 
+    //   break;
+    // case COLUMNS_UNSORTED:
+    //   ierr = cc::MatSetOption(mat,cc::MAT_COLUMNS_UNSORTED); 
+    //   break;
     }
 }
 
@@ -351,10 +351,10 @@ void Mat::zeroRow(int i)
   //mwf gcc 3.3 has some problems with resolving cc::
   //for macros
   using namespace cc;
-  ierr = cc::ISCreateGeneral(PETSC_COMM_SELF,1,idx,&is);
+  ierr = cc::ISCreateGeneral(PETSC_COMM_SELF,1,idx,PETSC_COPY_VALUES,&is);
   //mwf this is now MatZeroRowsIS ?
-  ierr = cc::MatZeroRowsIS(mat,is,diag);  
-  ierr = cc::ISDestroy(is);
+  ierr = cc::MatZeroRowsIS(mat,is,diag,PETSC_NULL,PETSC_NULL);  
+  ierr = cc::ISDestroy(&is);
 }
 
 void Mat::draw()
@@ -378,7 +378,7 @@ void Mat::print()
 bool Mat::isAssembled()
 {
   using namespace cc;
-  PetscTruth t;
+  PetscBool t;
   ierr = MatAssembled(mat,&t);
   return t;
 }
@@ -386,8 +386,9 @@ bool Mat::isAssembled()
 bool Mat::isValid()
 {
   using namespace cc;
-  PetscTruth t;
-  ierr = MatValid(mat,&t);
+  PetscBool t;
+  //cek hack
+  //ierr = MatValid(mat,&t);
   return t;
 }
 

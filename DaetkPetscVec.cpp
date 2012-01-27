@@ -14,7 +14,7 @@ namespace Petsc
 #endif
 #include "petsc.h"
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdm.h"
 #include "petscis.h"
 #ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #define __cplusplus
@@ -64,7 +64,7 @@ Vec::Vec(int dim):
   myLocalIndices_(0),
   virtualGlobalIndexSet_(0),
   myVirtualGlobalIndices_(0),
-  da_(0),
+  dm_(0),
   rep_(0)
 {
   Tracer tr("Petsc::Vec::Vec(int length)");
@@ -162,7 +162,7 @@ Vec::Vec(int dim, const real& initialValue, int base,int stride):
   myLocalIndices_(0),
   virtualGlobalIndexSet_(0),
   myVirtualGlobalIndices_(0),
-  da_(0),
+  dm_(0),
   rep_(0)
 {
   Tracer tr("Petsc::Vec::Vec(int dim, const real& initialValue, int base,int stride)");
@@ -209,7 +209,7 @@ Vec::Vec(const Vec& v):
   myLocalIndices_(0),
   virtualGlobalIndexSet_(0),
   myVirtualGlobalIndices_(0),
-  da_(0),
+  dm_(0),
   rep_(0)
 {
   using namespace cc;
@@ -277,7 +277,7 @@ Vec::Vec(Vec::CopyType t, real* a, int localDim, int base, int stride):
   myLocalIndices_(0),
   virtualGlobalIndexSet_(0),
   myVirtualGlobalIndices_(0),
-  da_(0),
+  dm_(0),
   rep_(0)
 {
   using namespace cc;
@@ -329,7 +329,7 @@ Vec::Vec(Vec::CopyType ref,const Vec& V, const VecIndex& I):
   myLocalIndices_(0),
   virtualGlobalIndexSet_(0),
   myVirtualGlobalIndices_(0),
-  da_(V.da_),
+  dm_(V.dm_),
   rep_(V.rep_)
 {
   using namespace cc;
@@ -345,7 +345,7 @@ Vec::Vec(Vec::CopyType ref,const Vec& V, const VecIndex& I):
   attachToVec(ref,V,I);
 }
 
-Vec::Vec(Vec::StorageType t, cc::_p_DA* da):
+Vec::Vec(Vec::StorageType t, cc::_p_DM* dm):
   ownsVec_(true),
   ownsScatter_(false),
   ownsIndexSet_(false),  
@@ -374,11 +374,11 @@ Vec::Vec(Vec::StorageType t, cc::_p_DA* da):
   myLocalIndices_(0),
   virtualGlobalIndexSet_(0),
   myVirtualGlobalIndices_(0),
-  da_(da),
+  dm_(dm),
   rep_(0)
 {
 
-  Tracer tr("Petsc::Vec::StorageType t, Petsc::cc:_p_DA* da)");
+  Tracer tr("Petsc::Vec::StorageType t, Petsc::cc:_p_DM* dm)");
 
   using namespace cc;
   Petsc::Err ierr;
@@ -390,13 +390,13 @@ Vec::Vec(Vec::StorageType t, cc::_p_DA* da):
     {
       hasGhostPoints_ = true;
       mpiComm_=PETSC_COMM_SELF;
-      ierr =  DACreateLocalVector(da,&rep_); 
+      ierr =  DMCreateLocalVector(dm,&rep_); 
     }
   else
     {
       mpiComm_=PETSC_COMM_WORLD;
       hasGhostPoints_ = false;
-      ierr =  DACreateGlobalVector(da,&rep_);
+      ierr =  DMCreateGlobalVector(dm,&rep_);
     }
   ierr = VecSetFromOptions(rep_);
   getLocal();
@@ -435,7 +435,7 @@ Vec::Vec(const CMRVec<real>& vin):
   myLocalIndices_(0),
   virtualGlobalIndexSet_(0),
   myVirtualGlobalIndices_(0),
-  da_(0),
+  dm_(0),
   rep_(0)
 {
   using namespace cc;
@@ -452,7 +452,7 @@ Vec::Vec(const CMRVec<real>& vin):
       if (!ownsVec_)
         create(dim); //calls getStorageInfo and createStrideMappings
       cc::Vec gVec;
-      ierr =  DACreateNaturalVector(da_,&gVec);
+      ierr =  DMDACreateNaturalVector(dm_,&gVec);
       restoreLocal();
       
       if (petSys_.master())
@@ -470,10 +470,10 @@ Vec::Vec(const CMRVec<real>& vin):
           ierr =  VecAssemblyBegin(gVec);
           ierr =  VecAssemblyEnd(gVec);
         }
-      ierr =  DANaturalToGlobalBegin(da_,gVec,INSERT_VALUES,rep_);
-      ierr =  DANaturalToGlobalEnd(da_,gVec,INSERT_VALUES,rep_);     
+      ierr =  DMDANaturalToGlobalBegin(dm_,gVec,INSERT_VALUES,rep_);
+      ierr =  DMDANaturalToGlobalEnd(dm_,gVec,INSERT_VALUES,rep_);     
       getLocal();
-      VecDestroy(gVec);
+      VecDestroy(&gVec);
       if (storageLength_ != dim)
         cerr<<"trouble in ctor4"<<endl;
     }
@@ -552,12 +552,12 @@ Vec& Vec::operator-=(const Vec& y)
 }
 
 
-Vec& Vec::newsize( Vec::StorageType t, cc::_p_DA* da)
+Vec& Vec::newsize( Vec::StorageType t, cc::_p_DM* dm)
 {
   using namespace cc;
   Petsc::Err ierr;
 
-  Tracer tr("Petsc::Vec::newsize(Petsc::Vec::StorageType t, Petsc::cc:_p_DA* da)");
+  Tracer tr("Petsc::Vec::newsize(Petsc::Vec::StorageType t, Petsc::cc:_p_DM* dm)");
   assert(petSys_.isInitialized());
   
   if (t == LOCAL)
@@ -565,13 +565,13 @@ Vec& Vec::newsize( Vec::StorageType t, cc::_p_DA* da)
       clear();
       mpiComm_=PETSC_COMM_SELF;
       hasGhostPoints_ = true;
-      ierr =  DACreateLocalVector(da,&rep_); 
+      ierr =  DMCreateLocalVector(dm,&rep_); 
       ownsVec_ = true;
     }
   else
     {
       cc::_p_Vec* newRep_;
-      ierr =  DACreateGlobalVector(da,&newRep_);
+      ierr =  DMCreateGlobalVector(dm,&newRep_);
       int newStorageLength_;
       ierr = VecGetSize(newRep_,&newStorageLength_);
       if (storageLength_ == newStorageLength_)
@@ -586,8 +586,8 @@ Vec& Vec::newsize( Vec::StorageType t, cc::_p_DA* da)
           ierr = VecScatterBegin(ctx,rep_,newRep_,INSERT_VALUES ,SCATTER_FORWARD);
 //           ierr = VecScatterEnd(rep_,newRep_,INSERT_VALUES ,SCATTER_FORWARD, ctx);
           ierr = VecScatterEnd(ctx,rep_,newRep_,INSERT_VALUES ,SCATTER_FORWARD);
-          ierr = VecScatterDestroy(ctx);
-          ierr = ISDestroy(is);
+          ierr = VecScatterDestroy(&ctx);
+          ierr = ISDestroy(&is);
           getLocal();
         }
       clear();
@@ -595,7 +595,7 @@ Vec& Vec::newsize( Vec::StorageType t, cc::_p_DA* da)
       rep_ = newRep_;
       ownsVec_ = true;
     }
-  da_=da;
+  dm_=dm;
   //ierr = VecSetFromOptions(rep_);
   getLocal();
   getStorageInfo();
@@ -746,9 +746,10 @@ Vec& Vec::setBase(int b)
 
 bool Vec::isValid() const
 {
-  cc::PetscTruth flg;
+  cc::PetscBool flg;
   Petsc::Err ierr;
-  ierr = cc::VecValid(rep_,&flg);
+  //cek hack
+  //ierr = cc::VecValid(rep_,&flg);
   return flg;
 }
 
@@ -824,9 +825,9 @@ void Vec::startSetFromGlobalMulti(const Vec& global)
   global.restoreLocal();
   if (!ownsScatter_)
     {
-      VecScatter da_ltog_,da_gtol_,da_ltol_;
-      ierr =  DAGetScatter(da_,&da_ltog_,&da_gtol_,&da_ltol_);
-      ierr =  VecScatterCopy(da_gtol_,&my_gtol_);
+      VecScatter dm_ltog_,dm_gtol_,dm_ltol_;
+      ierr =  DMDAGetScatter(dm_,&dm_ltog_,&dm_gtol_,&dm_ltol_);
+      ierr =  VecScatterCopy(dm_gtol_,&my_gtol_);
       ownsScatter_=true;
     }
 //   ierr =  VecScatterBegin(global.rep_,rep_,
@@ -834,7 +835,7 @@ void Vec::startSetFromGlobalMulti(const Vec& global)
 //                           my_gtol_);
   ierr =  VecScatterBegin(my_gtol_,global.rep_,rep_,
                           INSERT_VALUES,SCATTER_FORWARD);
-  //  ierr = DAGlobalToLocalBegin(da_,global.rep_,INSERT_VALUES,rep_);
+  //  ierr = DMGlobalToLocalBegin(dm_,global.rep_,INSERT_VALUES,rep_);
 //    global.getLocal();
 //    getLocal();
 }
@@ -844,7 +845,7 @@ void Vec::endSetFromGlobalMulti(const Vec& global)
   Petsc::Err ierr;
 //    restoreLocal();
 //    global.restoreLocal();
-  //ierr = DAGlobalToLocalEnd(da_,global.rep_,INSERT_VALUES,rep_);
+  //ierr = DMGlobalToLocalEnd(dm_,global.rep_,INSERT_VALUES,rep_);
   using namespace cc;
 //   ierr =  VecScatterEnd(global.rep_,rep_,
 //                         INSERT_VALUES,SCATTER_FORWARD,
@@ -863,14 +864,14 @@ void Vec::startSetFromGlobal(const Vec& global)
   restoreLocal();
   global.restoreLocal();
   using namespace cc;
-  ierr = DAGlobalToLocalBegin(da_,global.rep_,INSERT_VALUES,rep_);
+  ierr = DMGlobalToLocalBegin(dm_,global.rep_,INSERT_VALUES,rep_);
 }
 
 void Vec::endSetFromGlobal(const Vec& global)
 {
   using namespace cc;
   Petsc::Err ierr;
-  ierr = DAGlobalToLocalEnd(da_,global.rep_,INSERT_VALUES,rep_);
+  ierr = DMGlobalToLocalEnd(dm_,global.rep_,INSERT_VALUES,rep_);
   global.getLocal();
   getLocal();
 }
@@ -881,7 +882,8 @@ void Vec::setFromLocal(const Vec& local)
   Petsc::Err ierr;
   restoreLocal();
   local.restoreLocal();
-  ierr = DALocalToGlobal(da_,local.rep_,INSERT_VALUES,rep_);
+  ierr = DMLocalToGlobalBegin(dm_,local.rep_,INSERT_VALUES,rep_);
+  ierr = DMLocalToGlobalEnd(dm_,local.rep_,INSERT_VALUES,rep_);
   local.getLocal();
   getLocal();
 }
@@ -925,22 +927,22 @@ Vec& Vec::clear(bool deRegister)
   if (ownsVec_)
     {
       restoreLocal();
-      ierr = VecDestroy(rep_);
+      ierr = VecDestroy(&rep_);
       ownsVec_ = false;
     }
   if (ownsScatter_)
     {
-      VecScatterDestroy(my_gtol_);
+      VecScatterDestroy(&my_gtol_);
       ownsScatter_ = false;
     }
   if (ownsIndexSet_)
     {
       ierr = ISRestoreIndices(globalIndexSet_,&myGlobalIndices_);
-      ierr = ISDestroy(globalIndexSet_);
+      ierr = ISDestroy(&globalIndexSet_);
       ierr = ISRestoreIndices(localIndexSet_,&myLocalIndices_);
-      ierr = ISDestroy(localIndexSet_);
+      ierr = ISDestroy(&localIndexSet_);
       ierr = ISRestoreIndices(virtualGlobalIndexSet_,&myVirtualGlobalIndices_);
-      ierr = ISDestroy(virtualGlobalIndexSet_);
+      ierr = ISDestroy(&virtualGlobalIndexSet_);
       ownsIndexSet_=false;
     }
   hasGhostPoints_=false;
@@ -1017,9 +1019,9 @@ Vec& Vec::attachToVec(Vec::CopyType ref,const Vec& V,const VecIndex& I)
 //           ierr = VecScatterEnd(V.rep_,rep_,INSERT_VALUES ,SCATTER_FORWARD, ctx);
           ierr = VecScatterBegin(ctx,V.rep_,rep_,INSERT_VALUES ,SCATTER_FORWARD);
           ierr = VecScatterEnd(ctx,V.rep_,rep_,INSERT_VALUES ,SCATTER_FORWARD);
-          ierr = VecScatterDestroy(ctx);
-          ierr = ISDestroy(ix);
-          ierr = ISDestroy(iy);
+          ierr = VecScatterDestroy(&ctx);
+          ierr = ISDestroy(&ix);
+          ierr = ISDestroy(&iy);
           V.getLocal();
           getLocal();
         }
@@ -1088,9 +1090,9 @@ Vec& Vec::attachToVecMulti(Vec::CopyType ref,const Vec& V,const VecIndex& I)
 //               ierr = VecScatterEnd(V.rep_,rep_,INSERT_VALUES ,SCATTER_FORWARD, ctx);
               ierr = VecScatterBegin(ctx,V.rep_,rep_,INSERT_VALUES ,SCATTER_FORWARD);
               ierr = VecScatterEnd(ctx,V.rep_,rep_,INSERT_VALUES ,SCATTER_FORWARD);
-              ierr = VecScatterDestroy(ctx);
-              ierr = ISDestroy(ix);
-              ierr = ISDestroy(iy);
+              ierr = VecScatterDestroy(&ctx);
+              ierr = ISDestroy(&ix);
+              ierr = ISDestroy(&iy);
               V.getLocal();
               getLocal();
             }
@@ -1190,11 +1192,11 @@ void Vec::createStrideMappings()
   if (ownsIndexSet_)
     {
       ierr = ISRestoreIndices(globalIndexSet_,&myGlobalIndices_);
-      ierr = ISDestroy(globalIndexSet_);
+      ierr = ISDestroy(&globalIndexSet_);
       ierr = ISRestoreIndices(localIndexSet_,&myLocalIndices_);
-      ierr = ISDestroy(localIndexSet_);
+      ierr = ISDestroy(&localIndexSet_);
       ierr = ISRestoreIndices(virtualGlobalIndexSet_,&myVirtualGlobalIndices_);
-      ierr = ISDestroy(virtualGlobalIndexSet_);
+      ierr = ISDestroy(&virtualGlobalIndexSet_);
       ownsIndexSet_=false;
     }
   else
@@ -1320,11 +1322,11 @@ void Vec::createBlockStrideMappings(int block)
   if (ownsIndexSet_)
     {
       ierr = ISRestoreIndices(globalIndexSet_,&myGlobalIndices_);
-      ierr = ISDestroy(globalIndexSet_);
+      ierr = ISDestroy(&globalIndexSet_);
       ierr = ISRestoreIndices(localIndexSet_,&myLocalIndices_);
-      ierr = ISDestroy(localIndexSet_);
+      ierr = ISDestroy(&localIndexSet_);
       ierr = ISRestoreIndices(virtualGlobalIndexSet_,&myVirtualGlobalIndices_);
-      ierr = ISDestroy(virtualGlobalIndexSet_);
+      ierr = ISDestroy(&virtualGlobalIndexSet_);
       ownsIndexSet_=false;
     }
   else
@@ -1402,18 +1404,18 @@ void Vec::createBlockStrideMappings(int block)
 
       ownsIndexSet_ = true;      
 
-      ierr = ISCreateBlock(PETSC_COMM_SELF,block,ldim_/block,global_idx,&globalIndexSet_);
-      ierr = ISCreateBlock(PETSC_COMM_SELF,block,ldim_/block,local_idx,&localIndexSet_);
-      ierr = ISCreateBlock(PETSC_COMM_SELF,block,ldim_/block,virtualGlobal_idx,&virtualGlobalIndexSet_);
+      ierr = ISCreateBlock(PETSC_COMM_SELF,block,ldim_/block,global_idx,PETSC_COPY_VALUES,&globalIndexSet_);
+      ierr = ISCreateBlock(PETSC_COMM_SELF,block,ldim_/block,local_idx,PETSC_COPY_VALUES,&localIndexSet_);
+      ierr = ISCreateBlock(PETSC_COMM_SELF,block,ldim_/block,virtualGlobal_idx,PETSC_COPY_VALUES,&virtualGlobalIndexSet_);
 
       //get rid of the stride sets
 
       ierr = ISRestoreIndices(globalStrideIndexSet_,&global_idx);
       ierr = ISRestoreIndices(localStrideIndexSet_,&local_idx);
       ierr = ISRestoreIndices(virtualGlobalStrideIndexSet_,&virtualGlobal_idx);
-      ierr = ISDestroy(globalStrideIndexSet_);
-      ierr = ISDestroy(localStrideIndexSet_);
-      ierr = ISDestroy(virtualGlobalStrideIndexSet_);
+      ierr = ISDestroy(&globalStrideIndexSet_);
+      ierr = ISDestroy(&localStrideIndexSet_);
+      ierr = ISDestroy(&virtualGlobalStrideIndexSet_);
 
       int ldimtest;
 
@@ -1540,8 +1542,8 @@ void Vec::setExample()
           using namespace cc;
 
           _p_Vec* newRep_;
-          if (this->da_ != 0)
-            ierr =  DACreateGlobalVector(this->da_,&newRep_);
+          if (this->dm_ != 0)
+            ierr =  DMCreateGlobalVector(this->dm_,&newRep_);
           else
             ierr = VecDuplicate(this->rep_,&newRep_);
           (*i)->restoreLocal();
@@ -1554,14 +1556,14 @@ void Vec::setExample()
 //           ierr = VecScatterEnd((*i)->rep_,newRep_,INSERT_VALUES ,SCATTER_FORWARD, ctx);
           ierr = VecScatterBegin(ctx,(*i)->rep_,newRep_,INSERT_VALUES ,SCATTER_FORWARD);
           ierr = VecScatterEnd(ctx,(*i)->rep_,newRep_,INSERT_VALUES ,SCATTER_FORWARD);
-          ierr = VecScatterDestroy(ctx);
-          ierr = ISDestroy(is);
+          ierr = VecScatterDestroy(&ctx);
+          ierr = ISDestroy(&is);
           
           (*i)->clear(false);//don't deRegister
           (*i)->rep_=newRep_;
           (*i)->ownsVec_=true;
           (*i)->mpiComm_=PETSC_COMM_WORLD;
-          (*i)->da_  = da_;
+          (*i)->dm_  = dm_;
           
           //from createStrideMappings -- borrow instead of copy
           (*i)->ownsIndexSet_=false;
@@ -1604,7 +1606,7 @@ void Vec::enterRegistry(int n)
       ownsVec_ = true;
       mpiComm_ = PETSC_COMM_WORLD;
       ierr = VecDuplicate(vecRegistry[n].first->rep_,&rep_);
-      da_  = vecRegistry[n].first->da_;
+      dm_  = vecRegistry[n].first->dm_;
       dim_ = n;
       storageLength_ = n;
       lstorageLength_ = vecRegistry[n].first->lstorageLength_;

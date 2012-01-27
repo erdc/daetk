@@ -53,7 +53,7 @@ namespace Petsc
   namespace cc
     {
   struct _p_IS;
-  struct _p_DA;
+  struct _p_DM;
   struct _p_Vec;
   struct _p_VecScatter;
     }
@@ -83,7 +83,7 @@ public:
 
   enum StorageType{ GLOBAL, LOCAL};
 
-  Vec(Vec::StorageType t, Petsc::cc::_p_DA* da);
+  Vec(Vec::StorageType t, Petsc::cc::_p_DM* dm);
 
   Vec(const Daetk::CMRVec<real>& vin);
 
@@ -186,7 +186,7 @@ public:
   //dropped
   //Vec& setSize( int n);
   
-  Vec& newsize( Vec::StorageType t, Petsc::cc::_p_DA* da);
+  Vec& newsize( Vec::StorageType t, Petsc::cc::_p_DM* dm);
   //this next is a hack for now, not really a local vector
   Vec& newsize( Vec::StorageType t, int n);
   Vec& newsize( int n);
@@ -229,9 +229,9 @@ public:
   void getLocal() const;
   
   void setExample();
-  Petsc::cc::_p_DA*  getDA()
+  Petsc::cc::_p_DM*  getDM()
   {
-    return da_;
+    return dm_;
   }
   typedef std::map<int,std::pair<Vec*,std::set<Vec*> > > Registry;
   static Registry vecRegistry;
@@ -289,7 +289,7 @@ public:
   const int* myVirtualGlobalIndices_;
 
   //the data
-  Petsc::cc::_p_DA*  da_;  //if this vec comes from a distributed array
+  Petsc::cc::_p_DM*  dm_;  //if this vec comes from a distributed array
   Petsc::cc::_p_VecScatter*    my_gtol_;
   //the data
   Petsc::cc::_p_Vec*  rep_;

@@ -13,7 +13,7 @@ namespace Petsc
 #endif
 #include "petsc.h"
 #include "petscvec.h"
-#include "petscda.h"
+#include "petscdm.h"
 #include "petscmat.h"
 #ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
 #define __cplusplus

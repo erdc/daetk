@@ -38,7 +38,7 @@ int Err::operator=(int i)
   using namespace cc;
   int line=0;
   if (i)
-  PetscError(line,"unknown Daetk function","unknown file","daetk source",i,0,"a funtion in the petsc library threw an error which the enclosing daetk function can't handle");
+    PetscError(PETSC_COMM_SELF,line,"unknown Daetk function","unknown file","daetk source",i,PETSC_ERROR_INITIAL,"a funtion in the petsc library threw an error which the enclosing daetk function can't handle");
   return i;
 }
 
@@ -79,7 +79,7 @@ Sys::~Sys()
   if (commCreator)
     {
       Err ierr;
-      PetscTruth finalizedAlready(PETSC_FALSE);
+      PetscBool finalizedAlready(PETSC_FALSE);
       ierr = cc::PetscFinalized(&finalizedAlready);
       if (!finalizedAlready)
 	ierr = cc::PetscFinalize();
