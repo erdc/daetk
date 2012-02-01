@@ -1,4 +1,5 @@
 #include "DaetkPetscAnalyticalJacobian.h"
+#include <cstdio>
 
 namespace Daetk 
 {
