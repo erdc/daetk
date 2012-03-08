@@ -121,12 +121,18 @@ void Mat::newsize(int nGlobalRows, int nDiagonals, int nOffDiagonals,
   format=Mat::aij_format;
   if (blockSize==1)
     {
-      ierr =  cc::MatCreateMPIAIJ(cc::PETSC_COMM_WORLD,testVec.ldim(),testVec.ldim(),
-                              nGlobalRows,nGlobalRows,
-                              nDiagonals,PETSC_NULL,
-                              nOffDiagonals,PETSC_NULL,
-                              &mat);
       format=Mat::aij_format;
+      ierr =  cc::MatCreate(cc::PETSC_COMM_WORLD,&mat);
+      ierr =  cc::MatSetSizes(mat,
+			     testVec.ldim(),testVec.ldim(),
+			     nGlobalRows,nGlobalRows);
+      ierr =  cc::MatSetType(mat,MATMPIAIJ);
+      ierr =  cc::MatSetUp(mat);
+      // ierr =  cc::MatCreateMPIAIJ(cc::PETSC_COMM_WORLD,testVec.ldim(),testVec.ldim(),
+      //                         nGlobalRows,nGlobalRows,
+      // 				  nDiagonals,
+      //                         nOffDiagonals,PETSC_NULL,,PETSC_NULL,
+      //                         &mat);
       rowValueCache = new real[nDiagonals + nOffDiagonals];
       colIndexCache = new int[nDiagonals + nOffDiagonals];
     }
@@ -138,13 +144,19 @@ void Mat::newsize(int nGlobalRows, int nDiagonals, int nOffDiagonals,
 //                                blockSize*nOffDiagonals,PETSC_NULL,
 //                                &mat);
 //        format=Mat::aij_format;
-      ierr =  cc::MatCreateMPIBAIJ(cc::PETSC_COMM_WORLD,blockSize,
-                               testVec.ldim(),testVec.ldim(),
-                               nGlobalRows,nGlobalRows,
-                               nDiagonals,PETSC_NULL,
-                               nOffDiagonals,PETSC_NULL,
-                               &mat);
+      // ierr =  cc::MatCreateMPIBAIJ(cc::PETSC_COMM_WORLD,blockSize,
+      //                          testVec.ldim(),testVec.ldim(),
+      //                          nGlobalRows,nGlobalRows,
+      //                          nDiagonals,PETSC_NULL,
+      //                          nOffDiagonals,PETSC_NULL,
+      //                          &mat);
       format=Mat::block_aij_format;
+      ierr =  cc::MatCreate(cc::PETSC_COMM_WORLD,&mat);
+      ierr =  cc::MatSetSizes(mat,
+			     testVec.ldim(),testVec.ldim(),
+			     nGlobalRows,nGlobalRows);
+      ierr =  cc::MatSetType(mat,MATMPIBAIJ);
+      ierr =  cc::MatSetUp(mat);
       sqr_blockSize_=blockSize_*blockSize_;
       blockColumns  = new int[blockSize_*(nDiagonals + nOffDiagonals)];
       rowValueCache = new real[sqr_blockSize_*blockSize*(nDiagonals + nOffDiagonals)];
@@ -183,8 +195,14 @@ void Mat::newsizeSequential(int nGlobalRows, int nDiagonals, int nOffDiagonals,
     {
       //mwf gcc 3.3 has a problem with resolving cc:: and macros
       using namespace cc;
-      ierr = cc::MatCreateSeqAIJ(PETSC_COMM_SELF,nGlobalRows,nGlobalRows,nNonzero,PETSC_NULL,&mat); 
+      //ierr = cc::MatCreateSeqAIJ(PETSC_COMM_SELF,nGlobalRows,nGlobalRows,nNonzero,PETSC_NULL,&mat); 
       format=Mat::aij_format;
+      ierr =  cc::MatCreate(cc::PETSC_COMM_WORLD,&mat);
+      ierr =  cc::MatSetSizes(mat,
+			     testVec.ldim(),testVec.ldim(),
+			     nGlobalRows,nGlobalRows);
+      ierr =  cc::MatSetType(mat,MATMPIAIJ);
+      ierr =  cc::MatSetUp(mat);      
       rowValueCache = new real[nDiagonals + nOffDiagonals];
       colIndexCache = new int[nDiagonals + nOffDiagonals];
     }
@@ -192,11 +210,17 @@ void Mat::newsizeSequential(int nGlobalRows, int nDiagonals, int nOffDiagonals,
     {
       //mwf gcc 3.3 has a problem with resolving cc:: and macros
       using namespace cc;
-      ierr =  cc::MatCreateSeqBAIJ(PETSC_COMM_SELF,blockSize,
-                               nGlobalRows,nGlobalRows,
-                               nDiagonals+nOffDiagonals,
-                               PETSC_NULL, &mat);
+      // ierr =  cc::MatCreateSeqBAIJ(PETSC_COMM_SELF,blockSize,
+      //                          nGlobalRows,nGlobalRows,
+      //                          nDiagonals+nOffDiagonals,
+      //                          PETSC_NULL, &mat);
       format=Mat::block_aij_format;
+      ierr =  cc::MatCreate(cc::PETSC_COMM_WORLD,&mat);
+      ierr =  cc::MatSetSizes(mat,
+			     testVec.ldim(),testVec.ldim(),
+			     nGlobalRows,nGlobalRows);
+      ierr =  cc::MatSetType(mat,MATMPIBAIJ);
+      ierr =  cc::MatSetUp(mat);      
       sqr_blockSize_=blockSize_*blockSize_;
       blockColumns  = new int[blockSize_*(nDiagonals + nOffDiagonals)];
       rowValueCache = new real[sqr_blockSize_*blockSize*(nDiagonals + nOffDiagonals)];

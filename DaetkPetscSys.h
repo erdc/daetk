@@ -30,10 +30,10 @@ public:
   bool catchError(bool error);
   int getRank();
   int getSize();
+  static bool initialized;
 protected:
   Err ierr;
   bool commCreator;
-  static bool initialized;
   static int rank,size;
 };
 }//Petsc

@@ -53,17 +53,21 @@ Sys::Sys(int& argc, char **argv,char* help, char* file)
   using std::endl;
   using std::flush;
   using std::cout;
-  if (!help)
-    help = PETSC_NULL;
-  if (!file)
-    file = PETSC_NULL;
   if (initialized)
     {
       cerr<<"Sys already initialized. Ignoring constructor arguments."<<endl;
       commCreator = false;
+      ierr = MPI_Comm_size(PETSC_COMM_WORLD,&size);
+      ierr = MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
+      cerr<<"size: "<<size<<endl;
+      cerr<<"rank: "<<size<<endl;
     }
   else
     {
+      if (!help)
+	help = PETSC_NULL;
+      if (!file)
+	file = PETSC_NULL;
       commCreator=true;
       Err ierr;
       initialized=true;
