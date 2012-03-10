@@ -55,12 +55,9 @@ Sys::Sys(int& argc, char **argv,char* help, char* file)
   using std::cout;
   if (initialized)
     {
-      cerr<<"Sys already initialized. Ignoring constructor arguments."<<endl;
       commCreator = false;
       ierr = MPI_Comm_size(PETSC_COMM_WORLD,&size);
       ierr = MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
-      cerr<<"size: "<<size<<endl;
-      cerr<<"rank: "<<size<<endl;
     }
   else
     {
