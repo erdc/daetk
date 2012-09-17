@@ -51,13 +51,13 @@ public:
   void useFixedIterationConvergence();
   bool forceOneIteration();
   //Krylov subspace methods
-  enum Method {RICHARDSON, CHEBYCHEV, CG, GMRES, TCQMR, BCGS, CGS, 
+  enum Method {RICHARDSON, CHEBYSHEV, CG, GMRES, TCQMR, BCGS, CGS, 
                TFQMR, CR, LSQR, BICG, PREONLY};
 
   void setMethod(Method m=GMRES);
 
   void setRichardsonScale(double damping_factor=1.0); 
-  void setChebychevEigenvalues(double emax=0.01,double emin=100.0); 
+  void setChebyshevEigenvalues(double emax=0.01,double emin=100.0); 
   void setGmresRestart(int max_steps=30);
   enum Orthogonalization {MODIFIED,UNMODIFIED};
   void setGmresOrthogonalization(Orthogonalization m=MODIFIED);

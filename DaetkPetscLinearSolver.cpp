@@ -341,11 +341,11 @@ void LinearSolver::setRichardsonScale(double damping_factor)
   ierr = cc::KSPRichardsonSetScale(sles,damping_factor); 
 }
 
-void LinearSolver::setChebychevEigenvalues(double emax,double emin)
+void LinearSolver::setChebyshevEigenvalues(double emax,double emin)
 {
   //mwf 090104 PETSc 2.2.0 got rid of SLES completely
   //mwf replace ksp with sles  
-  ierr = cc::KSPChebychevSetEigenvalues(sles,emax,emin); 
+  ierr = cc::KSPChebyshevSetEigenvalues(sles,emax,emin); 
 }
 
 void LinearSolver::setGmresRestart(int max_steps)
@@ -382,8 +382,8 @@ void LinearSolver::setMethod(Method m)
     case RICHARDSON: 
       ierr = KSPSetType(sles,KSPRICHARDSON); 
       break; 
-    case CHEBYCHEV: 
-      ierr = KSPSetType(sles,KSPCHEBYCHEV); 
+    case CHEBYSHEV: 
+      ierr = KSPSetType(sles,KSPCHEBYSHEV); 
       break; 
     case CG: 
       ierr = KSPSetType(sles,KSPCG); 

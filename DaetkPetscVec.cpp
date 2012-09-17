@@ -744,14 +744,13 @@ Vec& Vec::setBase(int b)
   return *this;
 }
 
-bool Vec::isValid() const
-{
-  cc::PetscBool flg;
-  Petsc::Err ierr;
-  //cek hack
-  //ierr = cc::VecValid(rep_,&flg);
-  return flg;
-}
+// bool Vec::isValid() const
+// {
+//   cc::PetscBool flg;
+//   Petsc::Err ierr;
+//   ierr = Petsc::VecValid(rep_,&flg);
+//   return flg;
+// }
 
 
 
@@ -1123,7 +1122,7 @@ Vec& Vec::attachToArray(real *a, int localDim,int base, int stride)
   start_ = 0;
   stride_=stride;
   mpiComm_ = PETSC_COMM_WORLD;
-  ierr = VecCreateMPIWithArray(PETSC_COMM_WORLD,localDim*stride,PETSC_DETERMINE,a,&rep_);
+  ierr = VecCreateMPIWithArray(PETSC_COMM_WORLD,stride_,localDim*stride,PETSC_DETERMINE,a,&rep_);
   ownsVec_ = true; //owns the Petsc Vec, not the array
   getLocal();
   assert(a==p_);
