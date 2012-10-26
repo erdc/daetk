@@ -233,7 +233,7 @@ bool LinearSolver::solve(const Vec& bIn,Vec& xIn)
   // if (CALCULATE_CONDITION)
   //ierr = KSPSetComputeEigenvalues(sles);
 
-  const KSPType ksptype;
+  KSPType ksptype;
   const KSPType ksptype2=KSPPREONLY;
   //mwf 090104 PETSc 2.2.0 got rid of SLES completely
   //mwf replace ksp with sles 
