@@ -1,6 +1,7 @@
 #ifndef DAETKPETSCVEC
 #define DAETKPETSCVEC
 
+#include <cstdio>
 #include "Definitions.h"
 #include "PETE/PETE.h"
 namespace Pete
