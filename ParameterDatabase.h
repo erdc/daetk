@@ -1,6 +1,7 @@
 #ifndef PARAMETERDATABASE_H
 #define PARAMETERDATABASE_H
 
+#include <csignal>
 #include <iostream>
 #include <iomanip>
 #include <fstream>

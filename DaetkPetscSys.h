@@ -1,6 +1,6 @@
 #ifndef DAETKPETSCSYS_H
 #define DAETKPETSCSYS_H
-
+#include <csignal>
 #include "Definitions.h"
 
 namespace Daetk 
