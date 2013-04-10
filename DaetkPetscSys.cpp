@@ -62,9 +62,9 @@ Sys::Sys(int& argc, char **argv,char* help, char* file)
   else
     {
       if (!help)
-	help = PETSC_NULL;
+	  help = (char*)(PETSC_NULL);
       if (!file)
-	file = PETSC_NULL;
+	  file = (char*)(PETSC_NULL);
       commCreator=true;
       Err ierr;
       initialized=true;

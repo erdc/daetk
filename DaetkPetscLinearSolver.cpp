@@ -312,7 +312,7 @@ bool LinearSolver::solve(const Vec& bIn,Vec& xIn)
     {
       //mwf 090104 PETSc 2.2.0 got rid of SLES completely
       //mwf replace ksp with sles  
-      KSPBuildSolution(sles,xAttache.v_.castToPetsc(),PETSC_NULL);
+	KSPBuildSolution(sles,xAttache.v_.castToPetsc(),(Daetk::Petsc::cc::Vec*)(NULL));
       if (SOLVE_SUB)
         xIn=bIn;
       xAttache.restoreToTarget();
@@ -723,7 +723,7 @@ void LinearSolver::AdditiveSchwarz::setSubdomainIndexSets(std::vector< IndexSet 
       ISCreateBlock(PETSC_COMM_SELF,blocksize,nodes[i].size(),int_is,PETSC_COPY_VALUES,&(is[i]));
       delete [] int_is;
     }
-  ierr = PCASMSetLocalSubdomains(pc,nodes.size(),is,PETSC_NULL);
+  ierr = PCASMSetLocalSubdomains(pc,nodes.size(),is,(IS*)(NULL));
 }
 
 LinearSolver::AdditiveSchwarz::~AdditiveSchwarz()
@@ -738,7 +738,7 @@ void LinearSolver::AdditiveSchwarz::setSubdomainSolvers()
   using namespace cc;
   //mwf 090104 PETSc 2.2.0 removed SLES completely
   //mwf replace sles with KSP
-  ierr = PCASMGetSubKSP(pc,PETSC_NULL,PETSC_NULL,&sleses);
+  ierr = PCASMGetSubKSP(pc,(PetscInt)(NULL),(PetscInt)(NULL),&sleses);
   PC subpc;
   //mwf 090104 PETSc 2.2.0 removed SLES completely
   //mwf so now redundant

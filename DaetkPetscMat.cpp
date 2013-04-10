@@ -377,7 +377,7 @@ void Mat::zeroRow(int i)
   using namespace cc;
   ierr = cc::ISCreateGeneral(PETSC_COMM_SELF,1,idx,PETSC_COPY_VALUES,&is);
   //mwf this is now MatZeroRowsIS ?
-  ierr = cc::MatZeroRowsIS(mat,is,diag,PETSC_NULL,PETSC_NULL);  
+  ierr = cc::MatZeroRowsIS(mat,is,diag,(Daetk::Petsc::cc::Vec)(PETSC_NULL),(Daetk::Petsc::cc::Vec)(PETSC_NULL));  
   ierr = cc::ISDestroy(&is);
 }
 
@@ -386,7 +386,7 @@ void Mat::draw()
   Err ierr;
   using namespace cc;
   PetscViewer v;
-  ierr = PetscViewerDrawOpen(PETSC_COMM_WORLD,PETSC_NULL,PETSC_NULL,
+  ierr = PetscViewerDrawOpen(PETSC_COMM_WORLD,(const char)(PETSC_NULL),(const char)(PETSC_NULL),
                         PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,
                         &v);
   

@@ -1756,10 +1756,11 @@ Daetk::real max(const Daetk::Petsc::Vec& v)
 {
   Daetk::Petsc::Err ierr;
   Daetk::real m;
+  Daetk::Petsc::cc::PetscInt loc;
   v.restoreLocal();
 //    ierr =  VecSetBlockSize(v.rep_,v.stride_);
 //    ierr =  VecStrideMax(v.rep_,v.start_,PETSC_NULL,&m);
-  ierr =  Daetk::Petsc::cc::VecMax(v.rep_,PETSC_NULL,&m);
+  ierr =  Daetk::Petsc::cc::VecMax(v.rep_,&loc,&m);
   v.getLocal();
   return m;
 }
@@ -1779,11 +1780,12 @@ Daetk::real min(const Daetk::Petsc::Vec& v)
 {
   Daetk::Petsc::Err ierr;
   Daetk::real m;
+  Daetk::Petsc::cc::PetscInt loc;
   v.restoreLocal();
 //    ierr =  VecSetBlockSize(v.rep_,v.stride_);
 //    ierr =  VecStrideMin(v.rep_,v.start_,PETSC_NULL,&m);
   using namespace Daetk::Petsc::cc;
-  ierr =  VecMin(v.rep_,PETSC_NULL,&m);
+  ierr =  VecMin(v.rep_,&loc,&m);
   v.getLocal();
   return m;
 }
