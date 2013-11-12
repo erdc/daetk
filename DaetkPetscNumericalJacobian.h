@@ -171,7 +171,7 @@ bool NumericalJacobian<STENCIL,nv>::evaluate(const Vec& x,const Vec& Fatx)
       hasColoring = true;
     }
 
-  std::vector<int>::iterator index(0),indexEnd(0);
+  std::vector<int>::iterator index,indexEnd;
   localDelta.endSetFromGlobalMulti(Fp->deltaVF);
   
   int i,j,local_i,local_j;
