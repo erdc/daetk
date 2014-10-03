@@ -55,6 +55,9 @@ Sys::Sys(int& argc, char **argv,char* help, char* file)
   using std::cout;
   if (initialized)
     {
+      PetscBool isInitialized;
+      Err ierr=PetscInitialized(&isInitialized);
+      assert(isInitialized);
       commCreator = false;
       ierr = MPI_Comm_size(PETSC_COMM_WORLD,&size);
       ierr = MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
