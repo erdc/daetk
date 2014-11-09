@@ -38,7 +38,7 @@ int Err::operator=(int i)
   using namespace cc;
   int line=0;
   if (i)
-    PetscError(PETSC_COMM_SELF,line,"unknown Daetk function","unknown file","daetk source",i,PETSC_ERROR_INITIAL,"a funtion in the petsc library threw an error which the enclosing daetk function can't handle");
+    PetscError(PETSC_COMM_SELF,line,"unknown Daetk function","unknown file",i,PETSC_ERROR_INITIAL,"a funtion in the petsc library threw an error which the enclosing daetk function can't handle");
   return i;
 }
 
