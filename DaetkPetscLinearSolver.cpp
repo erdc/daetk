@@ -200,7 +200,7 @@ bool LinearSolver::prepare()
   //mwf 090104 PETSc 2.2.0 got rid of SLES completely
   //mwf replaced SLES with KSP 
 
-  i = KSPSetOperators(sles,mat->castToPetsc(),prec->castToPetsc(),SAME_NONZERO_PATTERN);
+  i = KSPSetOperators(sles,mat->castToPetsc(),prec->castToPetsc());
   ierr = i;
   //mwf 090104 PETSc 2.2.0 got rid of SLES completely
   //mwf replace with KSPSetUp(ksp) following man pages? web page is wrong
@@ -857,7 +857,7 @@ void LinearSolver::useFixedIterationConvergence()
 {
   //mwf 090104 PETSc 2.2.0 got rid of SLES completely
   //mwf replace ksp with sles
-  cc::KSPSetConvergenceTest(sles,cc::KSPSkipConverged,this,destroy);
+  cc::KSPSetConvergenceTest(sles,cc::KSPConvergedSkip,this,destroy);
 }
 
 void LinearSolver::useTimeIntegrationConvergenceTest(bool forceOneIterationIn)

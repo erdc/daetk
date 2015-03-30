@@ -823,8 +823,8 @@ void Vec::startSetFromGlobalMulti(const Vec& global)
   global.restoreLocal();
   if (!ownsScatter_)
     {
-      VecScatter dm_ltog_,dm_gtol_,dm_ltol_;
-      ierr =  DMDAGetScatter(dm_,&dm_ltog_,&dm_gtol_,&dm_ltol_);
+      VecScatter dm_gtol_,dm_ltol_;
+      ierr =  DMDAGetScatter(dm_,&dm_gtol_,&dm_ltol_);
       ierr =  VecScatterCopy(dm_gtol_,&my_gtol_);
       ownsScatter_=true;
     }
