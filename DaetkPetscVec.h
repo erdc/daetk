@@ -82,7 +82,7 @@ public:
   Vec(Vec::CopyType t, real* a, int localDim, int base=PetscVec_BASE, int stride=1);
 
   //ref copy or deep copy; deep copy has only enough storage for V(I) but global entries stay on the same pe's
-  Vec(Vec::CopyType t,const Vec& V, const VecIndex& I); 
+  Vec(Vec::CopyType t,const Vec& V, const VecIndex& VI); 
 
   enum StorageType{ GLOBAL, LOCAL};
 
@@ -139,7 +139,7 @@ public:
   inline const real& operator[](int i) const; 
   
   //dropped
-  //Vec operator()(const VecIndex &I) const;
+  //Vec operator()(const VecIndex &VI) const;
   
   Vec& operator=(const Vec& V);
   Vec& operator=(const real& r);
@@ -209,8 +209,8 @@ public:
   
   
   //local
-  Vec& attachToVec(Vec::CopyType t,const Vec& V,const VecIndex& I);
-  Vec& attachToVecMulti(Vec::CopyType t,const Vec& V,const VecIndex& I);
+  Vec& attachToVec(Vec::CopyType t,const Vec& V,const VecIndex& VI);
+  Vec& attachToVecMulti(Vec::CopyType t,const Vec& V,const VecIndex& VI);
   Vec& attachToArray(real *a, int localDim,int base, int stride=1);
   Vec& attachToPetscRepMulti(Petsc::cc::_p_Vec* pv);
   Vec& detachFromPetscRepMulti();

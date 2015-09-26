@@ -32,13 +32,13 @@ public:
   enum CopyType { NOT_REF, REF }; 
   CMRVec(CopyType t,T* a,  int storageLength, 
          int base=CMRVec_BASE,  int stride=1); 
-  CMRVec(CopyType t,const CMRVec& V,const CMRVecIndex& I); 
+  CMRVec(CopyType t,const CMRVec& V,const CMRVecIndex& VI); 
   virtual ~CMRVec();                              
   inline T& operator()(int i);
   inline const T& operator()(int i) const; 
   inline T& operator[](int i);
   inline const T& operator[](int i) const; 
-  CMRVec operator()(const CMRVecIndex &I) const;
+  CMRVec operator()(const CMRVecIndex &VI) const;
   CMRVec& operator=(const CMRVec& V);
   CMRVec& operator=(const T& r);
 
@@ -103,7 +103,7 @@ public:
   const T& push(const T& val);
   const T& pop();
   CMRVec& setBase(int b);
-  CMRVec& attachToVec(CopyType t,const CMRVec& V,const CMRVecIndex& I);
+  CMRVec& attachToVec(CopyType t,const CMRVec& V,const CMRVecIndex& VI);
   CMRVec& attachToArray(T *a, int length,int base, 
                                 int stride=1);
   T* castToArray();
@@ -419,17 +419,17 @@ CMRVec<T>::CMRVec(CMRVec::CopyType ref,T* a,
 template<class T>
 CMRVec<T>& CMRVec<T>::attachToVec(CMRVec::CopyType ref,
                                   const CMRVec& V,
-                                  const CMRVecIndex& I)
+                                  const CMRVecIndex& VI)
 {
   if (p_ && !ref_)
     delete [] p_;
-  p_=V.p_+ (I.start() - V.base_)*V.stride_; 
-  dim_=I.end() - I.start() + 1;
+  p_=V.p_+ (VI.start() - V.base_)*V.stride_; 
+  dim_=VI.end() - VI.start() + 1;
   ref_=ref;
   base_=V.base_;
   stride_=V.stride_;
-  storageLength_=(I.end() - I.start())*V.stride_ + 1; //this is the minimum storage length
-  if (!ref) //if a copy of V(I) is desired instead of a reference
+  storageLength_=(VI.end() - VI.start())*V.stride_ + 1; //this is the minimum storage length
+  if (!ref) //if a copy of V(VI) is desired instead of a reference
     {
       //use base_,ref_, and dim_ as they are from initialization
       storageLength_=dim_;//create only enough storage for the elements 
@@ -443,16 +443,16 @@ CMRVec<T>& CMRVec<T>::attachToVec(CMRVec::CopyType ref,
 
 template<class T>
 CMRVec<T>::CMRVec(CMRVec::CopyType ref, const CMRVec& V,
-                  const CMRVecIndex& I):
-  p_(V.p_+ (I.start() - V.base_)*V.stride_ ), 
-  dim_(I.end() - I.start() + 1),
+                  const CMRVecIndex& VI):
+  p_(V.p_+ (VI.start() - V.base_)*V.stride_ ), 
+  dim_(VI.end() - VI.start() + 1),
   ref_(ref),
   base_(V.base_),
   stride_(V.stride_),
-  storageLength_((I.end() - I.start())*V.stride_ + 1)
+  storageLength_((VI.end() - VI.start())*V.stride_ + 1)
 {
-  Tracer tr("CMRVec<T>::CMRVec(CMRVec<T>::CopyType ref, const CMRVec& V, const CMRVecIndex& I)");
-  if (!ref) //if a copy of V(I) is desired instead of a reference
+  Tracer tr("CMRVec<T>::CMRVec(CMRVec<T>::CopyType ref, const CMRVec& V, const CMRVecIndex& VI)");
+  if (!ref) //if a copy of V(VI) is desired instead of a reference
     {
       //use base_,ref_, and dim_ as they are from initialization
       storageLength_=dim_;//create only enough storage for the elements 
@@ -473,21 +473,21 @@ CMRVec<T>::~CMRVec()
 
 
 template<class T>
-CMRVec<T> CMRVec<T>::operator()(const CMRVecIndex &I) const
+CMRVec<T> CMRVec<T>::operator()(const CMRVecIndex &VI) const
 {
-  if (I.all())
+  if (VI.all())
     return CMRVec( REF,p_, storageLength_,base_,stride_);
   else
     {
       // check that index is not out of bounds
-      if ( I.end() >= dim_)
+      if ( VI.end() >= dim_)
         {
-          std::cerr << "MV_VecIndex: (" << I.start() << ":" << I.end() << 
+          std::cerr << "MV_VecIndex: (" << VI.start() << ":" << VI.end() << 
             ") too big for matrix (0:" << dim_ - 1 << ") " << std::endl;
           exit(1);
         }
-      return CMRVec(REF, p_+ I.start()*stride_, 
-                    (I.end() - I.start())*stride_ + 1, base_, stride_);
+      return CMRVec(REF, p_+ VI.start()*stride_, 
+                    (VI.end() - VI.start())*stride_ + 1, base_, stride_);
     }
 }
 
