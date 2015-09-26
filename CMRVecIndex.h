@@ -46,7 +46,7 @@ public:
   /** Return true if the CMRVecIndex accesses an entire vector */
 
   ///
-   CMRVecIndex& operator=(const CMRVecIndex& I);
+   CMRVecIndex& operator=(const CMRVecIndex& VI);
   /** Copy I */
 
   ///
