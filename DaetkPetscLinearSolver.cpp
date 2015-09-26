@@ -627,12 +627,14 @@ void LinearSolver::Ilu::dropToleranceReuseFill()
 
 void LinearSolver::Ilu::inPlace()
 {
-  ierr = cc::PCFactorSetUseInPlace(pc);   
+  using namespace cc;
+  ierr = PCFactorSetUseInPlace(pc,PETSC_TRUE);   
 }
  
 void LinearSolver::Ilu::allowDiagonalFill()
 {
-  ierr = cc::PCFactorSetAllowDiagonalFill(pc); 
+  using namespace cc;
+  ierr = PCFactorSetAllowDiagonalFill(pc,PETSC_TRUE); 
 }
 
 void LinearSolver::Sor::setOmega(double omega)
