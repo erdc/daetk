@@ -740,7 +740,10 @@ void LinearSolver::AdditiveSchwarz::setSubdomainSolvers()
   using namespace cc;
   //mwf 090104 PETSc 2.2.0 removed SLES completely
   //mwf replace sles with KSP
-  ierr = PCASMGetSubKSP(pc,(PetscInt)(NULL),(PetscInt)(NULL),&sleses);
+  ierr = PCASMGetSubKSP(pc,
+                        reinterpret_cast<PetscInt*>(NULL),
+                        reinterpret_cast<PetscInt*>(NULL),
+                        &sleses);
   PC subpc;
   //mwf 090104 PETSc 2.2.0 removed SLES completely
   //mwf so now redundant
