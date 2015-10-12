@@ -572,10 +572,14 @@ ParameterDatabase::broadcast()
       delete [] cstr;
       if (master)
         assert(name == it->first);
+      MPI_INT tmp_t;
       if (master)
-        tmp.t=it->second.t;
-      ierr = MPI_Bcast(&(tmp.t),1,MPI_INT,0,Petsc::cc::PETSC_COMM_WORLD);
-      
+        {
+          tmp.t=it->second.t;
+          tmp_t = tmp.t
+        }
+      ierr = MPI_Bcast(&(tmp_t),1,MPI_INT,0,Petsc::cc::PETSC_COMM_WORLD);
+      tmp.t = tmp_t;
       switch (tmp.t)
         {
         case DEFAULT:
