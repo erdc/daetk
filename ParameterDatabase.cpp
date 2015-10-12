@@ -579,7 +579,9 @@ ParameterDatabase::broadcast()
           tmp_t = tmp.t;
         }
       ierr = MPI_Bcast(&(tmp_t),1,MPI_INT,0,Petsc::cc::PETSC_COMM_WORLD);
-      tmp.t = tmp_t;
+      assert(tmp_t >= Parameter::DEFAULT);
+      assert(tmp_t <= Parameter::PARAMSTRING);
+      tmp.t = static_cast<Parameter::Type>(tmp_t);
       switch (tmp.t)
         {
         case DEFAULT:
