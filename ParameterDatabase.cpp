@@ -572,7 +572,7 @@ ParameterDatabase::broadcast()
       delete [] cstr;
       if (master)
         assert(name == it->first);
-      MPI_INT tmp_t;
+      int tmp_t;
       if (master)
         {
           tmp.t=it->second.t;
