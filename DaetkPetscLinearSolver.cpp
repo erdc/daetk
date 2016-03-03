@@ -11,22 +11,11 @@ namespace Petsc
 {
   namespace cc
   {
-    extern "C"
-    {
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#undef __cplusplus
-#endif
 #include "petsc.h"
 #include "petscvec.h"
 #include "petscdm.h"
-      //mwf 090104 PETSc 2.2.0 got rid of SLES completely
-      //mwf was #include "petscsles.h"
 #include "petscksp.h"
-#include "petscpc.h" //cek added for development version of PETSC
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#define __cplusplus
-#endif
-    }
+#include "petscpc.h"
   }
 
 
