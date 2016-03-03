@@ -9,16 +9,7 @@ namespace Petsc
 {
   namespace cc
   {
-    extern "C"
-    {
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#undef __cplusplus
-#endif
 #include "petsc.h"
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#define __cplusplus
-#endif
-    }
   }
 }
 //mwf put in because my gcc doesn't seem to have this ios_base

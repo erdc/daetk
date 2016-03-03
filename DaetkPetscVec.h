@@ -22,17 +22,7 @@ namespace Daetk
     class Vec;
     namespace cc
     {
-      extern "C"
-      {
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#define MYCPLUSPLUS __cplusplus
-#undef __cplusplus
-#endif
 #include "mpi.h"
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#define __cplusplus MYCPLUSPLUS
-#endif
-      }
     }
   }
 }
