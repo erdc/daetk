@@ -2,6 +2,7 @@
 #define DAETKPETSCSYS_H
 #include <csignal>
 #include "Definitions.h"
+#include <complex>
 
 namespace Daetk 
 {
