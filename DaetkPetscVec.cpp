@@ -289,7 +289,7 @@ Vec::Vec(Vec::CopyType t, real* a, int localDim, int base, int stride):
 }
 
 
-Vec::Vec(Vec::CopyType ref,const Vec& V, const VecIndex& I):
+  Vec::Vec(Vec::CopyType ref,const Vec& V, const Daetk::Petsc::VecIndex& VI):
   ownsVec_(false),
   ownsScatter_(false),
   ownsIndexSet_(false), 
@@ -297,10 +297,10 @@ Vec::Vec(Vec::CopyType ref,const Vec& V, const VecIndex& I):
   firstAttachment_(true),
   firstSetStride_(true),
   isRegistered_(false),
-  dim_(I.end() - I.start() + 1),
+  dim_(VI.end() - VI.start() + 1),
   base_(V.base_),
   stride_(V.stride_),
-  start_(I.start() - V.base_ + V.start_),
+  start_(VI.start() - V.base_ + V.start_),
   storageLength_(0),    
   lstorageLength_(0),   
   globalHigh_(0),       
@@ -324,15 +324,15 @@ Vec::Vec(Vec::CopyType ref,const Vec& V, const VecIndex& I):
 {
   using namespace cc;
   mpiComm_ = PETSC_COMM_SELF;
- if (I.all())
+ if (VI.all())
     {
       dim_=V.dim_;
       start_=V.start_;
     }
-  Tracer tr("Petsc::Vec::Vec(Petsc::Vec::CopyType t,const Vec& V, const Petsc::VecIndex& I)");
+  Tracer tr("Petsc::Vec::Vec(Petsc::Vec::CopyType t,const Vec& V, const Petsc::VecIndex& VI)");
   assert(petSys_.isInitialized());
   
-  attachToVec(ref,V,I);
+  attachToVec(ref,V,VI);
 }
 
 Vec::Vec(Vec::StorageType t, cc::_p_DM* dm):
@@ -956,22 +956,22 @@ Vec& Vec::clear(bool deRegister)
   return (*this);
 }
 
-Vec& Vec::attachToVec(Vec::CopyType ref,const Vec& V,const VecIndex& I)
+Vec& Vec::attachToVec(Vec::CopyType ref,const Vec& V,const VecIndex& VI)
 {
   using namespace  cc;
   Petsc::Err ierr;
   clear();
   if (!V.p_)
     V.getLocal();
-  if (I.all())
+  if (VI.all())
     {
       dim_=V.dim_;
       start_=V.start_;
     }
   else
     {
-      dim_=I.end() - I.start() + 1;
-      start_=I.start() - V.base_ + V.start_;
+      dim_=VI.end() - VI.start() + 1;
+      start_=VI.start() - V.base_ + V.start_;
     }
   base_=V.base_;
   stride_=V.stride_;
@@ -1025,7 +1025,7 @@ Vec& Vec::attachToVec(Vec::CopyType ref,const Vec& V,const VecIndex& I)
   return *this;
 }
 
-Vec& Vec::attachToVecMulti(Vec::CopyType ref,const Vec& V,const VecIndex& I)
+Vec& Vec::attachToVecMulti(Vec::CopyType ref,const Vec& V,const VecIndex& VI)
 {
   using namespace cc;
   Petsc::Err ierr;
@@ -1034,15 +1034,15 @@ Vec& Vec::attachToVecMulti(Vec::CopyType ref,const Vec& V,const VecIndex& I)
       clear();
       if (!V.p_)
         V.getLocal();
-      if (I.all())
+      if (VI.all())
         {
           dim_ = V.dim_;
           start_ = V.start_;
         }
       else
         {
-          dim_=I.end() - I.start() + 1;
-          start_=I.start() - V.base_ + V.start_;
+          dim_=VI.end() - VI.start() + 1;
+          start_=VI.start() - V.base_ + V.start_;
         }
       base_=V.base_;
       stride_=V.stride_;

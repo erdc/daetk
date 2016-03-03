@@ -374,10 +374,12 @@ void Mat::draw()
   Err ierr;
   using namespace cc;
   PetscViewer v;
-  ierr = PetscViewerDrawOpen(PETSC_COMM_WORLD,(const char)(PETSC_NULL),(const char)(PETSC_NULL),
-                        PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,
-                        &v);
-  
+  ierr = PetscViewerDrawOpen(PETSC_COMM_WORLD,
+                             reinterpret_cast<const char*>(NULL),
+                             reinterpret_cast<const char*>(NULL),
+                             PETSC_DECIDE,PETSC_DECIDE,
+                             PETSC_DECIDE,PETSC_DECIDE,
+                             &v);
   ierr = MatView(mat,v);
 }
 void Mat::print()

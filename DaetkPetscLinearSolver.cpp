@@ -616,12 +616,14 @@ void LinearSolver::Ilu::dropToleranceReuseFill()
 
 void LinearSolver::Ilu::inPlace()
 {
-  ierr = cc::PCFactorSetUseInPlace(pc);   
+  using namespace cc;
+  ierr = PCFactorSetUseInPlace(pc,PETSC_TRUE);   
 }
  
 void LinearSolver::Ilu::allowDiagonalFill()
 {
-  ierr = cc::PCFactorSetAllowDiagonalFill(pc); 
+  using namespace cc;
+  ierr = PCFactorSetAllowDiagonalFill(pc,PETSC_TRUE); 
 }
 
 void LinearSolver::Sor::setOmega(double omega)
@@ -727,7 +729,10 @@ void LinearSolver::AdditiveSchwarz::setSubdomainSolvers()
   using namespace cc;
   //mwf 090104 PETSc 2.2.0 removed SLES completely
   //mwf replace sles with KSP
-  ierr = PCASMGetSubKSP(pc,(PetscInt)(NULL),(PetscInt)(NULL),&sleses);
+  ierr = PCASMGetSubKSP(pc,
+                        reinterpret_cast<PetscInt*>(NULL),
+                        reinterpret_cast<PetscInt*>(NULL),
+                        &sleses);
   PC subpc;
   //mwf 090104 PETSc 2.2.0 removed SLES completely
   //mwf so now redundant

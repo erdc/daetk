@@ -563,10 +563,16 @@ ParameterDatabase::broadcast()
       delete [] cstr;
       if (master)
         assert(name == it->first);
+      int tmp_t;
       if (master)
-        tmp.t=it->second.t;
-      ierr = MPI_Bcast(&(tmp.t),1,MPI_INT,0,Petsc::cc::PETSC_COMM_WORLD);
-      
+        {
+          tmp.t=it->second.t;
+          tmp_t = tmp.t;
+        }
+      ierr = MPI_Bcast(&(tmp_t),1,MPI_INT,0,Petsc::cc::PETSC_COMM_WORLD);
+      assert(tmp_t >= DEFAULT);
+      assert(tmp_t <= PARAMSTRING);
+      tmp.t = static_cast<Type>(tmp_t);
       switch (tmp.t)
         {
         case DEFAULT:
