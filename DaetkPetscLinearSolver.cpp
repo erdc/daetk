@@ -11,22 +11,11 @@ namespace Petsc
 {
   namespace cc
   {
-    extern "C"
-    {
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#undef __cplusplus
-#endif
 #include "petsc.h"
 #include "petscvec.h"
 #include "petscdm.h"
-      //mwf 090104 PETSc 2.2.0 got rid of SLES completely
-      //mwf was #include "petscsles.h"
 #include "petscksp.h"
-#include "petscpc.h" //cek added for development version of PETSC
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#define __cplusplus
-#endif
-    }
+#include "petscpc.h"
   }
 
 
@@ -627,12 +616,14 @@ void LinearSolver::Ilu::dropToleranceReuseFill()
 
 void LinearSolver::Ilu::inPlace()
 {
-  ierr = cc::PCFactorSetUseInPlace(pc);   
+  using namespace cc;
+  ierr = PCFactorSetUseInPlace(pc,PETSC_TRUE);   
 }
  
 void LinearSolver::Ilu::allowDiagonalFill()
 {
-  ierr = cc::PCFactorSetAllowDiagonalFill(pc); 
+  using namespace cc;
+  ierr = PCFactorSetAllowDiagonalFill(pc,PETSC_TRUE); 
 }
 
 void LinearSolver::Sor::setOmega(double omega)
@@ -738,7 +729,10 @@ void LinearSolver::AdditiveSchwarz::setSubdomainSolvers()
   using namespace cc;
   //mwf 090104 PETSc 2.2.0 removed SLES completely
   //mwf replace sles with KSP
-  ierr = PCASMGetSubKSP(pc,(PetscInt)(NULL),(PetscInt)(NULL),&sleses);
+  ierr = PCASMGetSubKSP(pc,
+                        reinterpret_cast<PetscInt*>(NULL),
+                        reinterpret_cast<PetscInt*>(NULL),
+                        &sleses);
   PC subpc;
   //mwf 090104 PETSc 2.2.0 removed SLES completely
   //mwf so now redundant

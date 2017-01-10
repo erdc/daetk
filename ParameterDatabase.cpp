@@ -9,16 +9,7 @@ namespace Petsc
 {
   namespace cc
   {
-    extern "C"
-    {
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#undef __cplusplus
-#endif
 #include "petsc.h"
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#define __cplusplus
-#endif
-    }
   }
 }
 //mwf put in because my gcc doesn't seem to have this ios_base
@@ -572,10 +563,16 @@ ParameterDatabase::broadcast()
       delete [] cstr;
       if (master)
         assert(name == it->first);
+      int tmp_t;
       if (master)
-        tmp.t=it->second.t;
-      ierr = MPI_Bcast(&(tmp.t),1,MPI_INT,0,Petsc::cc::PETSC_COMM_WORLD);
-      
+        {
+          tmp.t=it->second.t;
+          tmp_t = tmp.t;
+        }
+      ierr = MPI_Bcast(&(tmp_t),1,MPI_INT,0,Petsc::cc::PETSC_COMM_WORLD);
+      assert(tmp_t >= DEFAULT);
+      assert(tmp_t <= PARAMSTRING);
+      tmp.t = static_cast<Type>(tmp_t);
       switch (tmp.t)
         {
         case DEFAULT:

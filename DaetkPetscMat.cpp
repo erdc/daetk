@@ -6,22 +6,10 @@ namespace Petsc
 {
   namespace cc
   {
-    extern "C"
-    {
-       //mwf 090104 seems to be some voodoo with order of includes
-       //mwf from petsc worked with petscda.h in between petscvec
-       //mwf and petcmat
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#undef __cplusplus
-#endif
 #include "petsc.h"
 #include "petscvec.h"
 #include "petscdm.h"
 #include "petscmat.h"
-#ifndef DAETK_DEF_CPLUSPLUS_FOR_PETSC_H
-#define __cplusplus
-#endif
-    }
   }
 
 
@@ -386,10 +374,12 @@ void Mat::draw()
   Err ierr;
   using namespace cc;
   PetscViewer v;
-  ierr = PetscViewerDrawOpen(PETSC_COMM_WORLD,(const char)(PETSC_NULL),(const char)(PETSC_NULL),
-                        PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,
-                        &v);
-  
+  ierr = PetscViewerDrawOpen(PETSC_COMM_WORLD,
+                             reinterpret_cast<const char*>(NULL),
+                             reinterpret_cast<const char*>(NULL),
+                             PETSC_DECIDE,PETSC_DECIDE,
+                             PETSC_DECIDE,PETSC_DECIDE,
+                             &v);
   ierr = MatView(mat,v);
 }
 void Mat::print()

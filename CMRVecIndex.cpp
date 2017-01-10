@@ -49,10 +49,10 @@ bool CMRVecIndex::all() const
   return all_; 
 }
 
-CMRVecIndex& CMRVecIndex::operator=(const CMRVecIndex& I)
+CMRVecIndex& CMRVecIndex::operator=(const CMRVecIndex& VI)
 { 
-  start_=I.start_; 
-  end_ = I.end_; 
+  start_=VI.start_; 
+  end_ = VI.end_; 
   return *this;
 }
 

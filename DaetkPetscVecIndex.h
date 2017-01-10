@@ -47,8 +47,8 @@ public:
   /** Return true if the VecIndex accesses an entire vector */
 
   ///
-  inline VecIndex& operator=(const VecIndex& I);
-  /** Copy I */
+  inline VecIndex& operator=(const VecIndex& VI);
+  /** Copy VI */
 
   ///
   inline VecIndex operator+(int i);
@@ -120,10 +120,10 @@ bool VecIndex::all() const
   return all_; 
 }
 
-VecIndex& VecIndex::operator=(const VecIndex& I)
+VecIndex& VecIndex::operator=(const VecIndex& VI)
 { 
-  start_=I.start_; 
-  end_ = I.end_; 
+  start_=VI.start_; 
+  end_ = VI.end_; 
   return *this;
 }
 
