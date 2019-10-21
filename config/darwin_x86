@@ -6,7 +6,7 @@ ARCHIVE_SUFFIX = .a
 
 INCLUDES = -I${DAETK_DIR} -I${DAETK_DIR}/pete/pete-2.1.0/src -I${DAETK_DIR}/pdetk ${PETSC_INCLUDE}
 
-CXX      = /usr/bin/mpicxx -arch i386 -arch x86_64
+CXX      = ${MPICXX} -arch i386 -arch x86_64
 CXXFLAGS = -DF77_POST_UNDERSCORE -DUSE_BLAS -DCMRVEC_BOUNDS_CHECK -DMV_VECTOR_BOUNDS_CHECK -DPETSCVEC_BOUNDS_CHECK ${PETSC_CCPPFLAGS}
 
 CC      = ${PCC}
@@ -15,7 +15,7 @@ CCFLAGS = ${PETSC_CCPPFLAGS}
 FC = /sw/bin/gfortran -march=i386 -march=x86-64
 FCFLAGS = ${PETSC_FCPPFLAGS}
 
-LD =  /usr/bin/mpicc -arch i386 -arch x86_64
+LD =  ${MPICC} -arch i386 -arch x86_64
 LDFLAGS = ${PCC_LINKER_FLAGS} 
 LDLIBS  = ${PETSC_LIB}
 
