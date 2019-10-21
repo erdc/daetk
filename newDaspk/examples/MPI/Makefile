@@ -20,7 +20,7 @@ OBJS = $(SOLVR)/ddaspk.o $(SOLVR)/daux.o $(SOLVR)/dlinpk.o \
 	$(SOLVR)/adf_dummy.o
 
 # MPI fortran compile comands
-MPIF = mpif77
+MPIF = ${MPIF77}
 
 #MPI compile options
 MPIFLAGS = -lmpi

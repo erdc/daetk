@@ -6,7 +6,7 @@ ARCHIVE_SUFFIX = .a
 
 INCLUDES = -I${DAETK_DIR} -I${DAETK_DIR}/pete/pete-2.1.0/src -I${DAETK_DIR}/pdetk ${PETSC_INCLUDE}
 
-CXX      = /opt/local/bin/openmpicxx
+CXX      = ${MPICXX}
 CXXFLAGS = -DF77_POST_UNDERSCORE -DUSE_BLAS -DCMRVEC_BOUNDS_CHECK -DMV_VECTOR_BOUNDS_CHECK -DPETSCVEC_BOUNDS_CHECK ${PETSC_CCPPFLAGS}
 
 CC      = ${PCC}
@@ -15,7 +15,7 @@ CCFLAGS = ${PETSC_CCPPFLAGS}
 FC = /opt/local/bin/openmpif90
 FCFLAGS = ${PETSC_FCPPFLAGS}
 
-LD =  /opt/local/bin/openmpicxx
+LD =  ${MPICXX}
 LDFLAGS = ${PCC_LINKER_FLAGS} 
 LDLIBS  = ${PETSC_LIB}
 

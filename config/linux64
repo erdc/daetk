@@ -16,7 +16,7 @@ CCFLAGS = ${PETSC_CCPPFLAGS}
 FC = gfortran 
 FCFLAGS = ${PETSC_FCPPFLAGS} -m64 -g
 
-LD =  mpicxx -m64 -g
+LD =  ${MPICXX} -m64 -g
 LDFLAGS = ${PCC_LINKER_FLAGS} 
 LDLIBS  = ${PETSC_LIB}
 
