@@ -38,7 +38,17 @@ namespace PetscVecOperators
   Daetk::real min(const Daetk::Petsc::Vec& v);
 }
 
-namespace Daetk 
+#include "petscversion.h"
+// petsc 3.15 merged VecScatter into PetscSF. Private variables were removed.
+#if (\
+  (PETSC_VERSION_MAJOR > 3) \
+  || \
+  (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR >= 15) \
+)
+  #define _p_VecScatter _p_PetscSF
+#endif
+
+namespace Daetk
 {
 namespace Petsc
 {
