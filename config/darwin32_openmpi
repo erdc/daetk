@@ -2,10 +2,10 @@
 include ${PETSC_DIR}/bmake/common/variables
 ARCHIVE_SUFFIX = .a
 PETSC_FLAGS =  ${CFLAGS} ${CCPPFLAGS}
-CXX = /usr/local/bin/mpiCC
-CC  = /usr/local/bin/mpicc
-F   = /usr/local/bin/mpif77
-LD  = /usr/local/bin/mpiCC
+CXX = ${MPICXX}
+CC  = ${MPICC}
+F   = ${MPIF77}
+LD  = ${MPICC}
 BLAS= -framework Accelerate
 MPI_INCLUDE = -I/usr/local/mpich-1.2.5/ch_p4/include
 
