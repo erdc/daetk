@@ -496,7 +496,7 @@ inline void DivKgradUG<BC,nv>::setDFlux_x(const Vec* K, const Vec* Rho, const Ve
   //it's very important that the compiler be able to unroll these
   for (int vi=0;vi<nv;vi++)
     {
-      register real rhox=Rhox(Rho[vi]),
+      real rhox=Rhox(Rho[vi]),
 	grad=DpDx(P[vi]) + rhox*this->gx,
 	kx=this->viscosity_ratio[vi]*Kx(K[vi],grad),
 	kxGrad=kx*grad,
