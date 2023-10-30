@@ -45,7 +45,7 @@ public:
   template <class RHS>
   CMRVec& operator+=(const Pete::Expression<RHS> &rhs)
   {
-    register int index=base_,end=base_+dim_;
+    int index=base_,end=base_+dim_;
     T* lhs=p_;
     for(index=base_;index<end;index++)
       {
@@ -58,7 +58,7 @@ public:
   template <class RHS>
   CMRVec& operator=(const Pete::Expression<RHS> &rhs)
   {
-    register int index=base_,end=base_+dim_;
+    int index=base_,end=base_+dim_;
     T* lhs=p_;
     for(index=base_;index<end;index++)
       {
@@ -71,7 +71,7 @@ public:
   template <class RHS>
   CMRVec& operator-=(const Pete::Expression<RHS> &rhs)
   {
-    register int index=base_,end=base_+dim_;
+    int index=base_,end=base_+dim_;
     T* lhs=p_;
     for(index=base_;index<end;index++)
       {

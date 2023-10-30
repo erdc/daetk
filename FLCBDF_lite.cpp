@@ -489,8 +489,8 @@ bool FLCBDF_lite::checkError(const Vec& y)
 
 void FLCBDF_lite::updateCoefficients()
 {
-  register int i;
-  register real temp1(0),temp2(0);
+  int i;
+  real temp1(0),temp2(0);
   //The following coefficients are constants throughout the integration:
   //betaNp1[0]=1.0, sigmaNp1[0]=1.0, gammaNp1[0]=0.0, alphaNp1[0]=1.0;
  
@@ -699,7 +699,7 @@ void FLCBDF_lite::chooseOrderForStep()
   //the following terms will be estimates of the remainder terms of 
   //Taylor series expansions of orders k-2,k-1,k, and k+1
 
-  register real termkm2=12345,termkm1=12345,termk=12345,termkp1=12345,errorkm2=12345,errorkm1=12345,errork=12345,errorkp1=12345;
+  real termkm2=12345,termkm1=12345,termk=12345,termkp1=12345,errorkm2=12345,errorkm1=12345,errork=12345,errorkp1=12345;
 
   //compute error estimates
    
@@ -898,7 +898,7 @@ void FLCBDF_lite::interpolant(const real& tout,Vec& yAtTout,Vec& yPAtTout)
   //the implementation is a bit tricky because it uses coefficient data
   //to compute t-t_i, i=n,...n-k+2. This eliminates the need to store t_i's
   //updateCoefficients();
-  register real toutminustn,D,C,gamma,psiN[7];
+  real toutminustn,D,C,gamma,psiN[7];
   for (i=0;i<7;i++)
     psiN[i] = psiNp1[i];
   updateCoefficients();

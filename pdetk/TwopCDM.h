@@ -289,7 +289,7 @@ bool TwopCDMSP<PROB,JAC>::yPrimeValue(const real &t,const  Vec& y,Vec& yp)
   
   pc.adjustBC(t);
 
-  register real a,b,c,d,det;
+  real a,b,c,d,det;
          
   theta[W].attachToVecMulti(Vec::REF,y,fwIndex);
   p[W].attachToVecMulti(Vec::REF,y,fnIndex);
@@ -991,7 +991,7 @@ template <class PROB, class JAC>
 bool TwopCDMMS<PROB,JAC>::yPrimeValue(const real &,const  Vec& y,Vec& yp)
 {  
   myY=&y;
-  register real a,b,c,d,det;
+  real a,b,c,d,det;
              
   theta[W].attachToVecMulti(Vec::REF,y,fwIndex);       theta[W].setStrideMulti(4);
   Dtheta[W].attachToVecMulti(Vec::REF,yp,fwIndex);     Dtheta[W].setStrideMulti(4); 
@@ -1609,7 +1609,7 @@ bool TwopCDMPP<PROB,JAC>::yPrimeValue(const real &t,const  Vec& y,Vec& yp)
 {  
   myY=&y;
   pc.adjustBC(t);
-  register real a(12345),b(12345),c(12345),d(12345),det(12345);
+  real a(12345),b(12345),c(12345),d(12345),det(12345);
              
   p[W].attachToVecMulti(Vec::REF,y,fwIndex);
   p[N].attachToVecMulti(Vec::REF,y,fnIndex);
